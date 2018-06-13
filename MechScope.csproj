@@ -63,8 +63,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoStepWorld.cs" />
+    <Compile Include="ConfigCommand.cs" />
+    <Compile Include="ControlPlayer.cs" />
+    <Compile Include="Patches\HitWirePatch.cs" />
+    <Compile Include="Patches\LogicGatePassPatch.cs" />
     <Compile Include="MechScope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SuspendableWireManager.cs" />
+    <Compile Include="Patches\TripWirePatch.cs" />
+    <Compile Include="Patches\UpdateMechPatch.cs" />
+    <Compile Include="VisualizerWorld.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

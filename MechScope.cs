@@ -11,6 +11,11 @@ namespace MechScope
 {
     public class MechScope : Mod
     {
+
+        public static ModHotKey keyToggle;
+        public static ModHotKey keyStep;
+        public static ModHotKey keyAutoStep;
+
         HarmonyInstance harmonyInstance;
 
         public MechScope()
@@ -30,6 +35,11 @@ namespace MechScope
                 harmonyInstance = HarmonyInstance.Create(Name);
 
             harmonyInstance.PatchAll();
+
+            keyToggle = RegisterHotKey("Toggle", "");
+            keyStep = RegisterHotKey("Step", "");
+            keyAutoStep = RegisterHotKey("Auto step", "");
+
         }
 
         public override void Unload()
