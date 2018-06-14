@@ -74,7 +74,7 @@ namespace MechScope
                                 Main.NewText("Now suspending after every logic gate execution step");
                                 break;
                             default:
-                                Main.NewText("Valid modes: single, wire, gate, step");
+                                Main.NewText("Valid modes: single, wire, source, step");
                                 break;
                         }
                         break;
