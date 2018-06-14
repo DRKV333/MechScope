@@ -22,7 +22,7 @@ namespace MechScope.Patches
         {
             if (!SuspendableWireManager.Active || Thread.CurrentThread.Name == SuspendableWireManager.wireThreadName)
             {
-                VisualizerWorld.MarkStart(new Point16(left, top));
+                VisualizerWorld.AddStart(new Point16(left, top));
                 return true;
             }
 

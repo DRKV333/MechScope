@@ -13,16 +13,28 @@ namespace MechScope
 {
     class VisualizerWorld : ModWorld
     {
-        struct wireSegment
+        class wireSegment
         {
-            public Point16 point;
-            public int color;
+            public bool red;
+            public bool blue;
+            public bool green;
+            public bool yellow;
+
+            public int numWires()
+            {
+                int num = 0;
+                if (red) num++;
+                if (blue) num++;
+                if (green) num++;
+                if (yellow) num++;
+                return num;
+            }
         }
 
         private const int maxWireVisual = 5000;
 
-        private static Point16 StartHighlight = Point16.Zero;
-        private static List<wireSegment> WireHighlight = new List<wireSegment>();
+        private static List<Point16> StartHighlight = new List<Point16>();
+        private static Dictionary<Point16, wireSegment> WireHighlight = new Dictionary<Point16, wireSegment>();
         private static Point16 PointHighlight = Point16.Zero;
 
         private Texture2D pixel;
@@ -35,47 +47,84 @@ namespace MechScope
 
         public override void PostDrawTiles()
         {
-            Main.spriteBatch.Begin();
+            
 
             if(SuspendableWireManager.Active)
             {
-                Color indicatorColor = Color.Yellow;
+                Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+
+                DrawIndicators();
 
                 if (SuspendableWireManager.Running)
-                    indicatorColor = Color.Red;
-
-                Main.spriteBatch.Draw(pixel, new Rectangle(Main.mouseX + 20, Main.mouseY - 20, 10, 10), indicatorColor);
-
-                if (AutoStepWorld.Active)
-                    Main.spriteBatch.Draw(pixel, new Rectangle(Main.mouseX + 30, Main.mouseY - 20, 10, 10), Color.Green);
-
-                if(SuspendableWireManager.Running)
                 {
-                    
+                    DrawWireSegments();
+                    DrawSimpleHeighlights();
+                }
 
-                    foreach (var item in WireHighlight)
-                    {
-                        Color wireColor;
-                        switch (item.color)
-                        {
-                            case 1: wireColor = Color.Red; break;
-                            case 2: wireColor = Color.Blue; break;
-                            case 3: wireColor = Color.Green; break;
-                            case 4: wireColor = Color.Yellow; break;
-                            default: wireColor = Color.Purple; break;
-                        }
-                        wireColor.A = 32;
+                Main.spriteBatch.End();
+            }
+        }
 
-                        DrawFilledRectFast(item.point.X * 16, item.point.Y * 16, 16, 16, wireColor);
+        private void DrawSimpleHeighlights()
+        {
+            foreach (var item in StartHighlight)
+            {
+                DrawRectFast(item.X * 16, item.Y * 16, 16, 16, Color.Red);
+            }
+            if (SuspendableWireManager.Mode == SuspendableWireManager.SuspendMode.perSingle)
+                DrawRectFast(PointHighlight.X * 16, PointHighlight.Y * 16, 16, 16, Color.Red);
+        }
 
-                        DrawRectFast(StartHighlight.X * 16, StartHighlight.Y * 16, 16, 16, Color.White);
-                        if (SuspendableWireManager.Mode == SuspendableWireManager.SuspendMode.perSingle)
-                            DrawRectFast(PointHighlight.X * 16, PointHighlight.Y * 16, 16, 16, Color.Red);
-                    }
+        private void DrawIndicators()
+        {
+            Color indicatorColor = Color.Yellow;
+
+            if (SuspendableWireManager.Running)
+                indicatorColor = Color.Red;
+
+            Main.spriteBatch.Draw(pixel, new Rectangle(Main.mouseX + 20, Main.mouseY - 20, 10, 10), indicatorColor);
+
+            if (AutoStepWorld.Active)
+                Main.spriteBatch.Draw(pixel, new Rectangle(Main.mouseX + 30, Main.mouseY - 20, 10, 10), Color.Green);
+
+        }
+
+        private void DrawWireSegments()
+        {
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive);
+
+            foreach (var item in WireHighlight)
+            {
+                DrawRectFast(item.Key.X * 16, item.Key.Y * 16, 16, 16, Color.White);
+
+                int startY = 2;
+                int height = 14 / item.Value.numWires();
+
+                if (item.Value.red)
+                {
+                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(255, 0, 0, 128));
+                    startY += height;
+                }
+                if (item.Value.blue)
+                {
+                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(0, 0, 255, 128));
+                    startY += height;
+                }
+                if (item.Value.green)
+                {
+                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(0, 255, 0, 128));
+                    startY += height;
+                }
+                if (item.Value.yellow)
+                {
+                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(128, 128, 0, 128));
+                    startY += height;
                 }
             }
 
             Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
         }
 
         private void DrawRectFast(int left, int top, int height, int width, Color color)
@@ -106,18 +155,35 @@ namespace MechScope
         public static void ResetSegments()
         {
             WireHighlight.Clear();
+            StartHighlight.Clear();
         }
 
         public static void AddWireSegment(Point16 point, int color)
         {
-            if (WireHighlight.Count < maxWireVisual)
-                WireHighlight.Add(new wireSegment() { point = point, color = color });
             PointHighlight = point;
+
+            wireSegment segment;
+            if (!WireHighlight.TryGetValue(point, out segment))
+            {
+                if (WireHighlight.Count > maxWireVisual)
+                    return;
+
+                segment = new wireSegment();
+                WireHighlight.Add(point, segment);
+            }
+
+            switch (color)
+            {
+                case 1: segment.red = true; break;
+                case 2: segment.blue = true; break;
+                case 3: segment.green = true; break;
+                case 4: segment.yellow = true; break;
+            }
         }
 
-        public static void MarkStart(Point16 point)
+        public static void AddStart(Point16 point)
         {
-            StartHighlight = point;
+            StartHighlight.Add(point);
         }
     }
 }
