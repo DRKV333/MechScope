@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
+using System.Reflection;
 
 namespace MechScope
 {
@@ -33,16 +34,26 @@ namespace MechScope
 
         private const int maxWireVisual = 5000;
 
+        private static readonly Color ColorWRed = new Color(255, 0, 0, 128);
+        private static readonly Color ColorWBlue = new Color(0, 0, 255, 128);
+        private static readonly Color ColorWGreen = new Color(0, 255, 0, 128);
+        private static readonly Color ColorWYellow = new Color(255, 255, 0, 128);
+
+
+
         private static List<Point16> StartHighlight = new List<Point16>();
         private static Dictionary<Point16, wireSegment> WireHighlight = new Dictionary<Point16, wireSegment>();
         private static Point16 PointHighlight = Point16.Zero;
 
         private Texture2D pixel;
+        private Dictionary<Point16, bool> WiringGatesDone;
 
         public override void Initialize()
         {
             pixel = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
             pixel.SetData(new Color[] { Color.White });
+
+            WiringGatesDone = (Dictionary<Point16,bool>)typeof(Wiring).GetField("_GatesDone", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         }
 
         public override void PostDrawTiles()
@@ -59,9 +70,21 @@ namespace MechScope
                 {
                     DrawWireSegments();
                     DrawSimpleHeighlights();
+                    DrawReflecionMarkers();
                 }
 
                 Main.spriteBatch.End();
+            }
+        }
+
+        private void DrawReflecionMarkers()
+        {
+            foreach (var item in WiringGatesDone)
+            {
+                if(item.Value)
+                {
+                    Main.spriteBatch.Draw(mod.GetTexture("GateDone"), WorldRectToScreen(new Rectangle(item.Key.X * 16, item.Key.Y * 16, 16, 16)), Color.White);
+                }
             }
         }
 
@@ -69,10 +92,10 @@ namespace MechScope
         {
             foreach (var item in StartHighlight)
             {
-                DrawRectFast(item.X * 16, item.Y * 16, 16, 16, Color.Red);
+                DrawRectFast(new Rectangle(item.X * 16, item.Y * 16, 16, 16), Color.Red);
             }
             if (SuspendableWireManager.Mode == SuspendableWireManager.SuspendMode.perSingle)
-                DrawRectFast(PointHighlight.X * 16, PointHighlight.Y * 16, 16, 16, Color.Red);
+                DrawRectFast(new Rectangle(PointHighlight.X * 16, PointHighlight.Y * 16, 16, 16), Color.Red);
         }
 
         private void DrawIndicators()
@@ -96,29 +119,29 @@ namespace MechScope
 
             foreach (var item in WireHighlight)
             {
-                DrawRectFast(item.Key.X * 16, item.Key.Y * 16, 16, 16, Color.White);
+                DrawRectFast(new Rectangle(item.Key.X * 16, item.Key.Y * 16, 16, 16), Color.White);
 
                 int startY = 2;
                 int height = 14 / item.Value.numWires();
 
                 if (item.Value.red)
                 {
-                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(255, 0, 0, 128));
+                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWRed);
                     startY += height;
                 }
                 if (item.Value.blue)
                 {
-                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(0, 0, 255, 128));
+                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWBlue);
                     startY += height;
                 }
                 if (item.Value.green)
                 {
-                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(0, 255, 0, 128));
+                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWGreen);
                     startY += height;
                 }
                 if (item.Value.yellow)
                 {
-                    DrawFilledRectFast(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, height + 1, 16, new Color(128, 128, 0, 128));
+                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWYellow);
                     startY += height;
                 }
             }
@@ -127,29 +150,29 @@ namespace MechScope
             Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
         }
 
-        private void DrawRectFast(int left, int top, int height, int width, Color color)
+        private void DrawRectFast(Rectangle rect, Color color)
         {
-            left -= (int)Main.screenPosition.X;
-            top -= (int)Main.screenPosition.Y;
+            rect = WorldRectToScreen(rect);
 
-            if (Main.LocalPlayer.gravDir == -1)
-                top = Main.screenHeight - top - height;
-
-            Main.spriteBatch.Draw(pixel, new Rectangle(left, top, width, 2), null, color);
-            Main.spriteBatch.Draw(pixel, new Rectangle(left, top + height, width, 2), null, color);
-            Main.spriteBatch.Draw(pixel, new Rectangle(left, top, 2, height), null, color);
-            Main.spriteBatch.Draw(pixel, new Rectangle(left + width, top, 2, height), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, rect.Width, 2), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y + rect.Height, rect.Width, 2), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, 2, rect.Height), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X + rect.Width, rect.Y, 2, rect.Height + 2), null, color);
         }
 
-        private void DrawFilledRectFast(int left, int top, int height, int width, Color color)
+        private void DrawFilledRectFast(Rectangle rect, Color color)
         {
-            left -= (int)Main.screenPosition.X;
-            top -= (int)Main.screenPosition.Y;
+            Main.spriteBatch.Draw(pixel, WorldRectToScreen(rect), null, color);
+        }
+
+        private Rectangle WorldRectToScreen(Rectangle rect)
+        {
+            Rectangle newRect = new Rectangle(rect.X - (int)Main.screenPosition.X, rect.Y - (int)Main.screenPosition.Y, rect.Width, rect.Height);
 
             if (Main.LocalPlayer.gravDir == -1)
-                top = Main.screenHeight - top - height;
+                newRect.Y = Main.screenHeight - newRect.Y - newRect.Height;
 
-            Main.spriteBatch.Draw(pixel, new Rectangle(left, top, width, height), null, color);
+            return newRect;
         }
 
         public static void ResetSegments()
