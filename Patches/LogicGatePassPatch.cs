@@ -22,7 +22,9 @@ namespace MechScope.Patches
 
             bool inject = false;
             bool injectedPostBranch = false;
-            bool injectedPostBlockTP = false;
+            bool injectedPreClearGatesDone = false;
+
+            int GatesDoneCount = 0;
 
             Stack<Label> prevJumps = new Stack<Label>();
 
@@ -34,15 +36,6 @@ namespace MechScope.Patches
                     inject = false;
 
                     CodeInstruction[] inst = SuspendableWireManager.MakeSuspendSnippet(generator, SuspendableWireManager.SuspendMode.perStage);
-
-                    //There is a branch on the end we need to skip
-                    
-                    if(injectedPostBlockTP)
-                    {
-                        Label label = prevJumps.Pop();
-                        inst[0].labels.Add(label);
-                        item.labels.Remove(label);
-                    }
 
                     foreach (var item2 in inst)
                     {
@@ -59,14 +52,17 @@ namespace MechScope.Patches
                     inject = true;
                 }
 
-                //We also need to put one on the end after IL_00E9
-                if (!injectedPostBlockTP && item.opcode == OpCodes.Stsfld)
+                //We also need to put one on the end before IL_00D7
+                if (!injectedPreClearGatesDone && item.opcode == OpCodes.Ldsfld)
                 {
                     FieldInfo SetField = item.operand as FieldInfo;
-                    if (SetField != null && SetField.Name == "blockPlayerTeleportationForOneIteration")
+                    if (SetField != null && SetField.Name == "_GatesDone")
                     {
-                        injectedPostBlockTP = true;
-                        inject = true;
+                        if (++GatesDoneCount == 4)
+                        {
+                            injectedPreClearGatesDone = true;
+                            inject = true;
+                        }
                     }
                 }
 
