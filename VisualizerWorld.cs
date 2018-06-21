@@ -9,6 +9,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 using System.Reflection;
+using ReLogic.Graphics;
 
 namespace MechScope
 {
@@ -32,21 +33,42 @@ namespace MechScope
             }
         }
 
+        struct ColoredMark
+        {
+            public string mark;
+            public Color color;
+
+            public ColoredMark(string mark, Color color)
+            {
+                this.mark = mark; this.color = color;
+            }
+        }
+
+
         private const int maxWireVisual = 5000;
+
+        public static bool ShowWireSkip = false;
+        public static bool ShowGatesDone = true;
+        public static bool ShowUpcomingGates = true;
+        public static bool ShowTriggeredLamps = false;
+
 
         private static readonly Color ColorWRed = new Color(255, 0, 0, 128);
         private static readonly Color ColorWBlue = new Color(0, 0, 255, 128);
         private static readonly Color ColorWGreen = new Color(0, 255, 0, 128);
         private static readonly Color ColorWYellow = new Color(255, 255, 0, 128);
 
-
-
         private static List<Point16> StartHighlight = new List<Point16>();
         private static Dictionary<Point16, wireSegment> WireHighlight = new Dictionary<Point16, wireSegment>();
         private static Point16 PointHighlight = Point16.Zero;
+        private static Dictionary<Point16, ColoredMark> MarkCache = new Dictionary<Point16, ColoredMark>();
 
-        private Texture2D pixel;
-        private Dictionary<Point16, bool> WiringGatesDone;
+        private static Texture2D pixel;
+
+        private static Dictionary<Point16, bool> WiringGatesDone;
+        private static Queue<Point16> WiringGatesCurrent;
+        private static Queue<Point16> WiringGatesNext; //We need static references for both of these, because they get swapped around.
+        private static Dictionary<Point16, bool> WiringWireSkip;
 
         public override void Initialize()
         {
@@ -54,6 +76,9 @@ namespace MechScope
             pixel.SetData(new Color[] { Color.White });
 
             WiringGatesDone = (Dictionary<Point16,bool>)typeof(Wiring).GetField("_GatesDone", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+            WiringGatesCurrent = (Queue<Point16>)typeof(Wiring).GetField("_GatesCurrent", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+            WiringGatesNext = Wiring._GatesNext;
+            WiringWireSkip = (Dictionary<Point16, bool>)typeof(Wiring).GetField("_wireSkip", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         }
 
         public override void PostDrawTiles()
@@ -70,21 +95,18 @@ namespace MechScope
                 {
                     DrawWireSegments();
                     DrawSimpleHeighlights();
-                    DrawReflecionMarkers();
+                    DrawReflectionMarkers();
                 }
 
                 Main.spriteBatch.End();
             }
         }
 
-        private void DrawReflecionMarkers()
+        private void DrawReflectionMarkers()
         {
-            foreach (var item in WiringGatesDone)
+            foreach (var item in MarkCache)
             {
-                if(item.Value)
-                {
-                    Main.spriteBatch.Draw(mod.GetTexture("GateDone"), WorldRectToScreen(new Rectangle(item.Key.X * 16, item.Key.Y * 16, 16, 16)), Color.White);
-                }
+                DrawTileMarker(item.Key, item.Value);
             }
         }
 
@@ -92,10 +114,10 @@ namespace MechScope
         {
             foreach (var item in StartHighlight)
             {
-                DrawRectFast(new Rectangle(item.X * 16, item.Y * 16, 16, 16), Color.Red);
+                DrawTileBorder(item, Color.Red);
             }
             if (SuspendableWireManager.Mode == SuspendableWireManager.SuspendMode.perSingle)
-                DrawRectFast(new Rectangle(PointHighlight.X * 16, PointHighlight.Y * 16, 16, 16), Color.Red);
+                DrawTileBorder(PointHighlight, Color.Red);
         }
 
         private void DrawIndicators()
@@ -119,29 +141,29 @@ namespace MechScope
 
             foreach (var item in WireHighlight)
             {
-                DrawRectFast(new Rectangle(item.Key.X * 16, item.Key.Y * 16, 16, 16), Color.White);
+                DrawTileBorder(item.Key, Color.White);
 
                 int startY = 2;
                 int height = 14 / item.Value.numWires();
 
                 if (item.Value.red)
                 {
-                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWRed);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWRed);
                     startY += height;
                 }
                 if (item.Value.blue)
                 {
-                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWBlue);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWBlue);
                     startY += height;
                 }
                 if (item.Value.green)
                 {
-                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWGreen);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWGreen);
                     startY += height;
                 }
                 if (item.Value.yellow)
                 {
-                    DrawFilledRectFast(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1), ColorWYellow);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWYellow);
                     startY += height;
                 }
             }
@@ -150,19 +172,25 @@ namespace MechScope
             Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
         }
 
-        private void DrawRectFast(Rectangle rect, Color color)
+        private void DrawTileMarker(Point16 tile, ColoredMark mark)
         {
-            rect = WorldRectToScreen(rect);
+            Vector2 text = Main.fontMouseText.MeasureString(mark.mark);
+            Vector2 loc = new Vector2(tile.X * 16 - (int)Main.screenPosition.X + 8, tile.Y * 16 - (int)Main.screenPosition.Y + 12) - text / 2;
+
+            if (Main.LocalPlayer.gravDir == -1)
+                loc.Y = Main.screenHeight - loc.Y - 16;
+
+            Main.spriteBatch.DrawString(Main.fontMouseText, mark.mark, loc, mark.color);
+        }
+
+        private void DrawTileBorder(Point16 tile, Color color)
+        {
+            Rectangle rect = WorldRectToScreen(new Rectangle(tile.X * 16, tile.Y * 16, 16, 16));
 
             Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, rect.Width, 2), null, color);
             Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y + rect.Height, rect.Width, 2), null, color);
             Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, 2, rect.Height), null, color);
             Main.spriteBatch.Draw(pixel, new Rectangle(rect.X + rect.Width, rect.Y, 2, rect.Height + 2), null, color);
-        }
-
-        private void DrawFilledRectFast(Rectangle rect, Color color)
-        {
-            Main.spriteBatch.Draw(pixel, WorldRectToScreen(rect), null, color);
         }
 
         private Rectangle WorldRectToScreen(Rectangle rect)
@@ -207,6 +235,55 @@ namespace MechScope
         public static void AddStart(Point16 point)
         {
             StartHighlight.Add(point);
+        }
+
+        public static void BuildMarkerCache()
+        {
+            MarkCache.Clear();
+
+            if (ShowWireSkip)
+            {
+                foreach (var item in WiringWireSkip)
+                {
+                    if (item.Value)
+                    {
+                        MarkCache[item.Key] = new ColoredMark("X", Color.Red);
+                    }
+                }
+            }
+
+            if (ShowGatesDone)
+            {
+
+                foreach (var item in WiringGatesDone)
+                {
+                    if (item.Value)
+                    {
+
+                        MarkCache[item.Key] = new ColoredMark("X", Color.White);
+                    }
+                }
+            }
+
+            if (ShowUpcomingGates)
+            {
+                foreach (var item in WiringGatesCurrent)
+                {
+                    MarkCache[item] = new ColoredMark("O", Color.Red);
+                }
+                foreach (var item in WiringGatesNext)
+                {
+                    MarkCache[item] = new ColoredMark("O", Color.Red);
+                }
+            }
+
+            if (ShowTriggeredLamps)
+            {
+                foreach (var item in Wiring._LampsToCheck)
+                {
+                    MarkCache[item] = new ColoredMark("?", Color.Orange);
+                }
+            }
         }
     }
 }
