@@ -30,7 +30,7 @@ namespace MechScope
             public int height;
         }
 
-        public const string wireThreadName = "wireThread";
+        private const string wireThreadName = "wireThread";
         private const int maxQueuedTrips = 100;
 
         public static bool Running { get; private set; }
@@ -49,13 +49,19 @@ namespace MechScope
             Running = false;
         }
 
-        public static void BeginTripWire(int left, int top, int width, int height)
+        public static bool BeginTripWire(int left, int top, int width, int height)
         {
-            if(Running)
+            if (!Active || Thread.CurrentThread.Name == wireThreadName)
+            {
+                VisualizerWorld.AddStart(new Point16(left, top));
+                return true;
+            }
+
+            if (Running)
             {
                 if(queuedWireTrips.Count < maxQueuedTrips)
                     queuedWireTrips.Enqueue(new QueuedWireTrip() { left = left, top = top, height = height, width = width });
-                return;
+                return false;
             }
 
             VisualizerWorld.ResetSegments();
@@ -74,6 +80,8 @@ namespace MechScope
             wireThread.Start(Main.rand);
 
             mainWait.WaitOne();
+
+            return false;
         }
 
         public static void Resume()
@@ -99,6 +107,7 @@ namespace MechScope
             {
                 runnigBackup = Wiring.running;
                 Wiring.running = false;
+                VisualizerWorld.BuildMarkerCache();
                 mainWait.Set();
                 wiringWait.WaitOne();
             }
@@ -130,7 +139,7 @@ namespace MechScope
             else
                 len += 1;
 
-            if (mode == SuspendMode.perSource)
+            if (mode == SuspendMode.perWire)
                 len += 3;
 
             int i = 0;
@@ -142,12 +151,14 @@ namespace MechScope
 
             if (mode == SuspendMode.perSingle)
             {
+                //In HitWireSingle we want to exfiltrate the call arguments, so we can visualize the wire we hit.
                 inst[i++] = new CodeInstruction(OpCodes.Ldloc_2);
                 inst[i++] = new CodeInstruction(OpCodes.Ldarg_1);
                 inst[i++] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("AddWireSegment"));
             }
-            if(mode == SuspendMode.perSource)
+            if(mode == SuspendMode.perWire)
             {
+                //When in perSingle mode, we still want to clear segments after each wire, even though we don't pause there.
                 inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
                 inst[i++] = new CodeInstruction(OpCodes.Ldc_I4_0);
                 labelWire = generator.DefineLabel();
@@ -159,8 +170,9 @@ namespace MechScope
             inst[i++] = new CodeInstruction(OpCodes.Call, typeof(SuspendableWireManager).GetMethod("SuspendWire"));
             if(mode != SuspendMode.perSingle)
             {
+                //We don't want to clear wire segments in HitWireSingle
                 inst[i] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("ResetSegments"));
-                if(mode == SuspendMode.perSource)
+                if(mode == SuspendMode.perWire)
                 {
                     inst[i].labels.Add(labelWire);
                 }

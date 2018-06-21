@@ -20,14 +20,7 @@ namespace MechScope.Patches
         [HarmonyPrefix]
         public static bool Prefix(int left, int top, int width, int height)
         {
-            if (!SuspendableWireManager.Active || Thread.CurrentThread.Name == SuspendableWireManager.wireThreadName)
-            {
-                VisualizerWorld.AddStart(new Point16(left, top));
-                return true;
-            }
-
-            SuspendableWireManager.BeginTripWire(left, top, width, height);
-            return false;
+            return SuspendableWireManager.BeginTripWire(left, top, width, height);
         }
 
         [HarmonyTranspiler]
