@@ -20,7 +20,7 @@ namespace MechScope.Patches
         [HarmonyPrefix]
         public static bool Prefix(int left, int top, int width, int height)
         {
-            return SuspendableWireManager.BeginTripWire(left, top, width, height);
+           return SuspendableWireManager.BeginTripWire(left, top, width, height);
         }
 
         [HarmonyTranspiler]
@@ -28,6 +28,7 @@ namespace MechScope.Patches
         {
             bool injectPostWire = false;
             int postWireCount = 0;
+            bool injectedGrabTeleporter = false;
 
             Stack<Label> prevJumps = new Stack<Label>();
 
@@ -72,7 +73,14 @@ namespace MechScope.Patches
                     }
                 }
 
+                //Before assigning the local that stores the teleporters queued for triggering, we want to exfiltrate it to the visualizer.
+                if(!injectedGrabTeleporter && item.opcode == OpCodes.Stloc_0)
+                {
+                    injectedGrabTeleporter = true;
 
+                    yield return new CodeInstruction(OpCodes.Dup);
+                    yield return new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("ReportTeleporterArray"));
+                }
 
 
                 //Inject code after call to XferWater at IL_011A, IL_022B, IL_033C and IL_044D

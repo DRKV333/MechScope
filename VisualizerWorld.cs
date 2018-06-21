@@ -51,7 +51,8 @@ namespace MechScope
         public static bool ShowGatesDone = true;
         public static bool ShowUpcomingGates = true;
         public static bool ShowTriggeredLamps = false;
-
+        public static bool ShowTeleporters = true;
+        public static bool ShowPumps = true;
 
         private static readonly Color ColorWRed = new Color(255, 0, 0, 128);
         private static readonly Color ColorWBlue = new Color(0, 0, 255, 128);
@@ -69,6 +70,7 @@ namespace MechScope
         private static Queue<Point16> WiringGatesCurrent;
         private static Queue<Point16> WiringGatesNext; //We need static references for both of these, because they get swapped around.
         private static Dictionary<Point16, bool> WiringWireSkip;
+        private static Vector2[] WiringTeleporters = new Vector2[8];
 
         public override void Initialize()
         {
@@ -237,6 +239,11 @@ namespace MechScope
             StartHighlight.Add(point);
         }
 
+        public static void ReportTeleporterArray(Vector2[] arr)
+        {
+            WiringTeleporters = arr;
+        }
+
         public static void BuildMarkerCache()
         {
             MarkCache.Clear();
@@ -282,6 +289,35 @@ namespace MechScope
                 foreach (var item in Wiring._LampsToCheck)
                 {
                     MarkCache[item] = new ColoredMark("?", Color.Orange);
+                }
+            }
+
+            if (ShowTeleporters)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector2 v = WiringTeleporters[i];
+                    if (v != null && v.X >= 0 && v.Y >= 0)
+                    {
+                        while (MarkCache.ContainsKey(v.ToPoint16()))
+                            v.X++;
+
+                        MarkCache[v.ToPoint16()] = new ColoredMark((i / 2 + 1).ToString(), Color.White);
+                    }
+                }
+            }
+
+            if (ShowPumps)
+            {
+                for (int i = 0; i < Wiring._numInPump; i++)
+                {
+                    Point16 point = new Point16(Wiring._inPumpX[i], Wiring._inPumpY[i]);
+                    MarkCache[point] = new ColoredMark(i.ToString(), Color.Red);
+                }
+                for (int i = 0; i < Wiring._numOutPump; i++)
+                {
+                    Point16 point = new Point16(Wiring._outPumpX[i], Wiring._outPumpY[i]);
+                    MarkCache[point] = new ColoredMark(i.ToString(), Color.Green);
                 }
             }
         }

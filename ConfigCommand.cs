@@ -17,7 +17,7 @@ namespace MechScope
         public override string Usage { get { return "/msconfig [setting]\n" +
                                                     "/msconfig [setting] [value]\nPossible settings: arate, smode, tvis\n" +
                                                     "Valid values for smode: single, wire, source, stage\n" +
-                                                    "Valid values for tvis: wireskip, gatesdone, gatesnext, lamps"; } }
+                                                    "Valid values for tvis: wireskip, gatesdone, gatesnext, lamps, teleporters, pumps"; } }
 
         public override string Description { get { return "Sets various settings for MechScope"; } }
 
@@ -36,7 +36,7 @@ namespace MechScope
                 {
                     case "arate": val = AutoStepWorld.Rate.ToString(); break;
                     case "smode": val = SuspendableWireManager.Mode.ToString(); break;
-                    case "tvis": val = string.Format("wireskip = {0}; gatesdone = {1}; gatesnext = {2}, lamps = {3}", VisualizerWorld.ShowWireSkip, VisualizerWorld.ShowGatesDone, VisualizerWorld.ShowUpcomingGates, VisualizerWorld.ShowTriggeredLamps); break;
+                    case "tvis": val = string.Format("wireskip = {0}; gatesdone = {1}; gatesnext = {2}, lamps = {3}, teleporters = {4}, pumps = {5}", VisualizerWorld.ShowWireSkip, VisualizerWorld.ShowGatesDone, VisualizerWorld.ShowUpcomingGates, VisualizerWorld.ShowTriggeredLamps, VisualizerWorld.ShowTeleporters, VisualizerWorld.ShowPumps); break;
                     default: val = "not a valid setting (see '/help msconfig')"; break;
                 }
                 Main.NewText(args[0] + " is " + val);
@@ -114,8 +114,22 @@ namespace MechScope
                                 else
                                     Main.NewText("Now not marking lamp that were triggered, but not checked yet");
                                 break;
+                            case "teleporters":
+                                VisualizerWorld.ShowTeleporters = !VisualizerWorld.ShowTeleporters;
+                                if (VisualizerWorld.ShowTeleporters)
+                                    Main.NewText("Now marking teleporter trigger order");
+                                else
+                                    Main.NewText("Now not marking teleporter trigger order");
+                                break;
+                            case "pumps":
+                                VisualizerWorld.ShowPumps = !VisualizerWorld.ShowPumps;
+                                if (VisualizerWorld.ShowPumps)
+                                    Main.NewText("Now marking pump trigger order");
+                                else
+                                    Main.NewText("Now not marking pump trigger order");
+                                break;
                             default:
-                                Main.NewText("Valid values: wireskip, gatesdone, gatesnext, lamps");
+                                Main.NewText("Valid values: wireskip, gatesdone, gatesnext, lamps, teleporters, pumps");
                                 break;
                         }
                         break;
