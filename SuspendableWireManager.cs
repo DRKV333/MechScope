@@ -1,4 +1,5 @@
 ﻿using Harmony;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,14 +23,6 @@ namespace MechScope
             perStage = 3
         }
 
-        struct QueuedWireTrip
-        {
-            public int left;
-            public int top;
-            public int width;
-            public int height;
-        }
-
         private const string wireThreadName = "wireThread";
         private const int maxQueuedTrips = 100;
 
@@ -38,7 +31,7 @@ namespace MechScope
         public static SuspendMode Mode = SuspendMode.perStage;
 
         private static bool active = false; 
-        private static Queue<QueuedWireTrip> queuedWireTrips = new Queue<QueuedWireTrip>();
+        private static Queue<Rectangle> queuedWireTrips = new Queue<Rectangle>();
         private static Thread wireThread;
         private static bool runnigBackup = false; //Wiring.running should be the same as Running in theory, but it isn't. (probably a bug)
         private static AutoResetEvent wiringWait = new AutoResetEvent(false);
@@ -53,14 +46,14 @@ namespace MechScope
         {
             if (!Active || Thread.CurrentThread.Name == wireThreadName)
             {
-                VisualizerWorld.AddStart(new Point16(left, top));
+                VisualizerWorld.AddStart(new Rectangle(left, top, width, height));
                 return true;
             }
 
             if (Running)
             {
-                if(queuedWireTrips.Count < maxQueuedTrips)
-                    queuedWireTrips.Enqueue(new QueuedWireTrip() { left = left, top = top, height = height, width = width });
+                if (queuedWireTrips.Count < maxQueuedTrips)
+                    queuedWireTrips.Enqueue(new Rectangle(left, top, width, height));
                 return false;
             }
 
@@ -96,8 +89,8 @@ namespace MechScope
 
             if(!Running && queuedWireTrips.Count > 0)
             {
-                QueuedWireTrip trip = queuedWireTrips.Dequeue();
-                BeginTripWire(trip.left, trip.top, trip.width, trip.height);
+                Rectangle trip = queuedWireTrips.Dequeue();
+                BeginTripWire(trip.X, trip.Y, trip.Width, trip.Height);
             }
         }
 

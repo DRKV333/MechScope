@@ -59,7 +59,7 @@ namespace MechScope
         private static readonly Color ColorWGreen = new Color(0, 255, 0, 128);
         private static readonly Color ColorWYellow = new Color(255, 255, 0, 128);
 
-        private static List<Point16> StartHighlight = new List<Point16>();
+        private static List<Rectangle> StartHighlight = new List<Rectangle>();
         private static Dictionary<Point16, wireSegment> WireHighlight = new Dictionary<Point16, wireSegment>();
         private static Point16 PointHighlight = Point16.Zero;
         private static Dictionary<Point16, ColoredMark> MarkCache = new Dictionary<Point16, ColoredMark>();
@@ -116,7 +116,7 @@ namespace MechScope
         {
             foreach (var item in StartHighlight)
             {
-                DrawTileBorder(item, Color.Red);
+                DrawTileBorder(new Point16(item.Location), Color.Red, item.Width, item.Height);
             }
             if (SuspendableWireManager.Mode == SuspendableWireManager.SuspendMode.perSingle)
                 DrawTileBorder(PointHighlight, Color.Red);
@@ -185,9 +185,9 @@ namespace MechScope
             Main.spriteBatch.DrawString(Main.fontMouseText, mark.mark, loc, mark.color);
         }
 
-        private void DrawTileBorder(Point16 tile, Color color)
+        private void DrawTileBorder(Point16 tile, Color color, int width = 1, int height = 1)
         {
-            Rectangle rect = WorldRectToScreen(new Rectangle(tile.X * 16, tile.Y * 16, 16, 16));
+            Rectangle rect = WorldRectToScreen(new Rectangle(tile.X * 16, tile.Y * 16, width * 16, height * 16));
 
             Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, rect.Width, 2), null, color);
             Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y + rect.Height, rect.Width, 2), null, color);
@@ -234,9 +234,9 @@ namespace MechScope
             }
         }
 
-        public static void AddStart(Point16 point)
+        public static void AddStart(Rectangle trip)
         {
-            StartHighlight.Add(point);
+            StartHighlight.Add(trip);
         }
 
         public static void ReportTeleporterArray(Vector2[] arr)
