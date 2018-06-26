@@ -108,6 +108,7 @@ namespace MechScope
                 runnigBackup = Wiring.running;
                 Wiring.running = false;
                 VisualizerWorld.BuildMarkerCache();
+                AutoStepWorld.ResetTimer();
                 mainWait.Set();
                 wiringWait.WaitOne();
             }

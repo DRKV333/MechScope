@@ -13,11 +13,11 @@ namespace MechScope
         public static bool Active = false;
         public static int Rate = 30;
 
-        private int count = 0;
+        private static int count = 0;
 
         public override void PostUpdate()
         {
-            if(Active)
+            if(Active && SuspendableWireManager.Running)
             {
                 count++;
                 if(count > Rate)
@@ -26,6 +26,11 @@ namespace MechScope
                     SuspendableWireManager.Resume();
                 }
             }
+        }
+
+        public static void ResetTimer()
+        {
+            count = 0;
         }
     }
 }
