@@ -68,7 +68,8 @@ namespace MechScope
 
         public override void PreSaveAndQuit()
         {
-            SuspendableWireManager.Resume();
+            SuspendableWireManager.Active = false;
+            settingsUI.Visible = false;
         }
 
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
