@@ -8,6 +8,8 @@ using Terraria.ModLoader;
 using Terraria.UI;
 using Terraria.GameContent.UI.Elements;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
+using Terraria.GameInput;
 
 namespace MechScope.UI
 {
@@ -15,6 +17,8 @@ namespace MechScope.UI
     {
         public bool Visible = false;
         private UIPanel BasePanel;
+
+        private UIIntBox arateBox;
 
         public override void OnInitialize()
         {
@@ -32,6 +36,9 @@ namespace MechScope.UI
             BasePanel.Height = new StyleDimension(0, 1);
             Append(BasePanel);
 
+            arateBox = new UIIntBox(() => AutoStepWorld.Rate, x => AutoStepWorld.Rate = x, 2);
+            arateBox.Width = new StyleDimension(0, 0.25f);
+
             UIElement[] elements = new UIElement[]
             {
                 null,
@@ -47,7 +54,10 @@ namespace MechScope.UI
                 new UIToggle("Upcoming gates", () => VisualizerWorld.ShowUpcomingGates, () => VisualizerWorld.ShowUpcomingGates = !VisualizerWorld.ShowUpcomingGates),
                 new UIToggle("Triggered lamps", () => VisualizerWorld.ShowTriggeredLamps, () => VisualizerWorld.ShowTriggeredLamps = !VisualizerWorld.ShowTriggeredLamps),
                 new UIToggle("Triggered teleporters", () => VisualizerWorld.ShowTeleporters, () => VisualizerWorld.ShowTeleporters = !VisualizerWorld.ShowTeleporters),
-                new UIToggle("Triggered pumps", () => VisualizerWorld.ShowPumps, () => VisualizerWorld.ShowPumps = !VisualizerWorld.ShowPumps)
+                new UIToggle("Triggered pumps", () => VisualizerWorld.ShowPumps, () => VisualizerWorld.ShowPumps = !VisualizerWorld.ShowPumps),
+                null,
+                new UIText("Auto-step rate:"),
+                arateBox
             };
 
             bool title = false;
