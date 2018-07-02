@@ -1,1 +1,13 @@
-This is mod that does some cool things that should probably not even be possible...
+In my opinion, there is one big issue with wiring. You can’t really SEE what is actually going on. Everything happens instantly once you flip the switch. This isn’t a big deal if you just want to build simpler door mechanisms or traps, but when you have a huge chain of logic gates, things will quickly become rather confusing… To resolve this problem, I have created MechScope, a TModLoader mod that can pause and visualize the wiring execution process.
+For more information, please visit the terraria forums.
+
+Default hotkeys:
+    Toggle    -  NumPad1
+    Step      -  NumPad2
+    Auto-step -  NumPad3
+    Settings  -  NumPad5
+
+Version history:
+
+v1.0
+- First release

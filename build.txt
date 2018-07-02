@@ -1,5 +1,5 @@
 author = DRKV
-version = 0.1
+version = 1.0
 displayName = MechScope
 includePDB = false
 dllReferences = 0Harmony
@@ -7,3 +7,4 @@ buildIgnore = .gitignore, description.txt, *.csproj*, *.sln, .git/*, .vs/*, bin/
 hideCode = false
 hideResources = false
 includeSource = true
+homepage = https://forums.terraria.org/index.php?threads/mechscope-wiring-visualized.70665/
