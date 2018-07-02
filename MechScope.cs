@@ -44,10 +44,10 @@ namespace MechScope
 
             harmonyInstance.PatchAll();
 
-            keyToggle = RegisterHotKey("Toggle", "");
-            keyStep = RegisterHotKey("Step", "");
-            keyAutoStep = RegisterHotKey("Auto step", "");
-            keySettings = RegisterHotKey("Settings", "");
+            keyToggle = RegisterHotKey("Toggle", "NumPad1");
+            keyStep = RegisterHotKey("Step", "NumPad2");
+            keyAutoStep = RegisterHotKey("Auto step", "NumPad3");
+            keySettings = RegisterHotKey("Settings", "NumPad5");
 
             if(!Main.dedServ)
             {
