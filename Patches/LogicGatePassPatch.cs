@@ -1,25 +1,18 @@
-﻿using System;
+﻿using Harmony;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-using Harmony;
 using Terraria;
-using Terraria.ModLoader;
-using Terraria.DataStructures;
 
 namespace MechScope.Patches
 {
     [HarmonyPatch(typeof(Wiring), "LogicGatePass")]
     [HarmonyPriority(Priority.Normal)]
-    class LogicGatePassPatch
+    internal class LogicGatePassPatch
     {
         [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> Transpiler(ILGenerator generator, IEnumerable<CodeInstruction> original)
+        private static IEnumerable<CodeInstruction> Transpiler(ILGenerator generator, IEnumerable<CodeInstruction> original)
         {
-
             bool inject = false;
             bool injectedPostBranch = false;
             bool injectedPreClearGatesDone = false;
@@ -30,7 +23,6 @@ namespace MechScope.Patches
 
             foreach (var item in original)
             {
-                
                 if (inject)
                 {
                     inject = false;
@@ -42,7 +34,6 @@ namespace MechScope.Patches
                         //ErrorLogger.Log(item2);
                         yield return item2;
                     }
-
                 }
 
                 //We want to inject after the end of the first loop at IL_0045
@@ -73,8 +64,6 @@ namespace MechScope.Patches
 
                 //ErrorLogger.Log(item);
                 yield return item;
-
-                
             }
         }
     }

@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework.Graphics;
 using Terraria;
-using Terraria.ModLoader;
-using Terraria.UI;
 using Terraria.GameContent.UI.Elements;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using Terraria.GameInput;
+using Terraria.UI;
 
 namespace MechScope.UI
 {
@@ -65,12 +57,12 @@ namespace MechScope.UI
             bool title = false;
             foreach (var item in elements)
             {
-                if(item == null)
+                if (item == null)
                 {
                     title = true;
                     continue;
                 }
-                if(title)
+                if (title)
                 {
                     title = false;
                     AppendToPanel(item, 0);
@@ -79,9 +71,8 @@ namespace MechScope.UI
                 {
                     AppendToPanel(item, 20);
                 }
-                
             }
-          
+
             Height.Pixels += 20;
 
             Recalculate();

@@ -1,30 +1,25 @@
 ﻿using Harmony;
-using System;
+using MechScope.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.UI;
-using MechScope.UI;
-using Terraria.Graphics;
 
 namespace MechScope
 {
     public class MechScope : Mod
     {
-
         public static ModHotKey keyToggle;
         public static ModHotKey keyStep;
         public static ModHotKey keyAutoStep;
         public static ModHotKey keySettings;
         public static SettingsUI settingsUI;
 
-        static HarmonyInstance harmonyInstance;
-        static UserInterface userInterface;
-        static LegacyGameInterfaceLayer UILayer;
+        private static HarmonyInstance harmonyInstance;
+        private static UserInterface userInterface;
+        private static LegacyGameInterfaceLayer UILayer;
 
         public MechScope()
         {
@@ -49,7 +44,7 @@ namespace MechScope
             keyAutoStep = RegisterHotKey("Auto step", "NumPad3");
             keySettings = RegisterHotKey("Settings", "NumPad5");
 
-            if(!Main.dedServ)
+            if (!Main.dedServ)
             {
                 settingsUI = new SettingsUI();
                 userInterface = new UserInterface();

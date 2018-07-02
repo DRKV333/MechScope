@@ -1,26 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using System;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameInput;
 using Terraria.UI;
-using Microsoft.Xna.Framework.Input;
 
 namespace MechScope.UI
 {
-    class UIIntBox : UITextPanel<string>
+    internal class UIIntBox : UITextPanel<string>
     {
         private string text;
 
         private bool hasFocus = false;
         private int maxDigits;
 
-        Action<int> set;
-        Func<int> get;
+        private Action<int> set;
+        private Func<int> get;
 
         public UIIntBox(Func<int> get, Action<int> set, int maxDigits) : base("", 1, false)
         {
@@ -40,7 +35,7 @@ namespace MechScope.UI
         public override void Update(GameTime gameTime)
         {
             if (hasFocus)
-            { 
+            {
                 Main.hasFocus = true;
                 Main.chatRelease = false;
                 PlayerInput.WritingText = true;
@@ -81,7 +76,5 @@ namespace MechScope.UI
             BackgroundColor = Color.Yellow;
             SetText(text + "|");
         }
-
-
     }
 }

@@ -1,21 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
+using ReLogic.Graphics;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
-using System.Reflection;
-using ReLogic.Graphics;
 
 namespace MechScope
 {
-    class VisualizerWorld : ModWorld
+    internal class VisualizerWorld : ModWorld
     {
-        class wireSegment
+        private class wireSegment
         {
             public bool red;
             public bool blue;
@@ -33,7 +29,7 @@ namespace MechScope
             }
         }
 
-        struct ColoredMark
+        private struct ColoredMark
         {
             public string mark;
             public Color color;
@@ -43,7 +39,6 @@ namespace MechScope
                 this.mark = mark; this.color = color;
             }
         }
-
 
         private const int maxWireVisual = 5000;
 
@@ -77,7 +72,7 @@ namespace MechScope
             pixel = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
             pixel.SetData(new Color[] { Color.White });
 
-            WiringGatesDone = (Dictionary<Point16,bool>)typeof(Wiring).GetField("_GatesDone", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+            WiringGatesDone = (Dictionary<Point16, bool>)typeof(Wiring).GetField("_GatesDone", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
             WiringGatesCurrent = (Queue<Point16>)typeof(Wiring).GetField("_GatesCurrent", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
             WiringGatesNext = Wiring._GatesNext;
             WiringWireSkip = (Dictionary<Point16, bool>)typeof(Wiring).GetField("_wireSkip", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
@@ -85,9 +80,7 @@ namespace MechScope
 
         public override void PostDrawTiles()
         {
-            
-
-            if(SuspendableWireManager.Active)
+            if (SuspendableWireManager.Active)
             {
                 Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
@@ -133,7 +126,6 @@ namespace MechScope
 
             if (AutoStepWorld.Active)
                 Main.spriteBatch.Draw(pixel, new Rectangle(Main.mouseX + 30, Main.mouseY - 20, 10, 10), Color.Green);
-
         }
 
         private void DrawWireSegments()
@@ -261,12 +253,10 @@ namespace MechScope
 
             if (ShowGatesDone)
             {
-
                 foreach (var item in WiringGatesDone)
                 {
                     if (item.Value)
                     {
-
                         MarkCache[item.Key] = new ColoredMark("X", Color.White);
                     }
                 }

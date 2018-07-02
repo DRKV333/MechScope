@@ -2,18 +2,14 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Terraria;
-using Terraria.DataStructures;
 using Terraria.Utilities;
 
 namespace MechScope
 {
-    static class SuspendableWireManager
+    internal static class SuspendableWireManager
     {
         public enum SuspendMode
         {
@@ -27,10 +23,10 @@ namespace MechScope
         private const int maxQueuedTrips = 100;
 
         public static bool Running { get; private set; }
-        public static bool Active { get { return active; } set { active = value; if(!value) Resume(); } }
+        public static bool Active { get { return active; } set { active = value; if (!value) Resume(); } }
         public static SuspendMode Mode = SuspendMode.perStage;
 
-        private static bool active = false; 
+        private static bool active = false;
         private static Queue<Rectangle> queuedWireTrips = new Queue<Rectangle>();
         private static Thread wireThread;
         private static bool runnigBackup = false; //Wiring.running should be the same as Running in theory, but it isn't. (probably a bug)
@@ -61,7 +57,8 @@ namespace MechScope
 
             Running = true;
 
-            wireThread = new Thread(delegate (object rand) {
+            wireThread = new Thread(delegate (object rand)
+            {
                 Main.rand = (UnifiedRandom)rand; //Main.rand is ThreadStatic, but we need it for faulty gates
                 Wiring.TripWire(left, top, width, height);
                 Running = false;
@@ -87,7 +84,7 @@ namespace MechScope
             wiringWait.Set();
             mainWait.WaitOne();
 
-            if(!Running && queuedWireTrips.Count > 0)
+            if (!Running && queuedWireTrips.Count > 0)
             {
                 Rectangle trip = queuedWireTrips.Dequeue();
                 BeginTripWire(trip.X, trip.Y, trip.Width, trip.Height);
@@ -110,24 +107,24 @@ namespace MechScope
         public static CodeInstruction[] MakeSuspendSnippet(ILGenerator generator, SuspendMode mode)
         {
             /* (Stuff in [] is dependent on mode)
-             * 
+             *
              * [ldloc.2]
              * [ldarg.1]
              * [call void VisualizerWorld::AddWireSegment(Point16,int)]
-             * 
+             *
              * [ldsfld SuspendMode  SuspendableWireManager::Mode]
              * [ldc.i4.0] //SuspenMode.perSingle
              * [beq single]
              * [ldsfld SuspendMode  SuspendableWireManager::Mode]
              * [ldc.i4.1] //SuspenMode.perWire
              * [beq single]
-             * 
+             *
              * ldsfld SuspendMode  SuspendableWireManager::Mode
              * ldc.i4 <mode>
              * bne.un skip
              * call void SuspendableWireManager::SuspendWire()
              * [single:] [call void VisualizerWorld::ResetSegments()]
-             * 
+             *
              * skip: nop
              */
 
@@ -155,7 +152,7 @@ namespace MechScope
                 inst[i++] = new CodeInstruction(OpCodes.Ldarg_1);
                 inst[i++] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("AddWireSegment"));
             }
-            if(mode == SuspendMode.perSource)
+            if (mode == SuspendMode.perSource)
             {
                 //When in perSingle and perWire mode, we still want to clear segments after each source, even though we don't pause there.
                 inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
@@ -170,11 +167,11 @@ namespace MechScope
             inst[i++] = new CodeInstruction(OpCodes.Ldc_I4, (Int32)mode);
             inst[i++] = new CodeInstruction(OpCodes.Bne_Un, labelSkip);
             inst[i++] = new CodeInstruction(OpCodes.Call, typeof(SuspendableWireManager).GetMethod("SuspendWire"));
-            if(mode == SuspendMode.perSource || mode == SuspendMode.perStage)
+            if (mode == SuspendMode.perSource || mode == SuspendMode.perStage)
             {
                 //We want to clear visuals after we are done with a source or stage
                 inst[i] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("ResetSegments"));
-                if(mode == SuspendMode.perSource)
+                if (mode == SuspendMode.perSource)
                 {
                     inst[i].labels.Add(labelWire);
                 }

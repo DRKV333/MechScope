@@ -1,19 +1,14 @@
-﻿using System;
+﻿using Harmony;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection.Emit;
-using Harmony;
-using Terraria;
-using Terraria.ModLoader;
 using System.Reflection;
+using System.Reflection.Emit;
+using Terraria;
 
 namespace MechScope.Patches
 {
     [HarmonyPatch(typeof(Wiring), "HitWire")]
     [HarmonyPriority(Priority.Normal)]
-    class HitWirePatch
+    internal class HitWirePatch
     {
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator generator, IEnumerable<CodeInstruction> original)
@@ -22,7 +17,7 @@ namespace MechScope.Patches
 
             foreach (var item in original)
             {
-                if(injectPostHitWireSingle)
+                if (injectPostHitWireSingle)
                 {
                     injectPostHitWireSingle = false;
 

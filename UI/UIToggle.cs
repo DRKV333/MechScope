@@ -1,21 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 using Terraria.GameContent.UI.Elements;
-using Terraria.UI;
 using Terraria.ID;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Terraria.UI;
 
 namespace MechScope.UI
 {
-    class UIToggle : UIText
+    internal class UIToggle : UIText
     {
-        Func<bool> get;
-        Action set;
+        private Func<bool> get;
+        private Action set;
 
         public UIToggle(string text, Func<bool> get, Action set) : base(text, 1, false)
         {

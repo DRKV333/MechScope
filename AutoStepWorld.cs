@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
-using Terraria.ModLoader;
+﻿using Terraria.ModLoader;
 
 namespace MechScope
 {
-    class AutoStepWorld : ModWorld
+    internal class AutoStepWorld : ModWorld
     {
         public static bool Active = false;
         public static int Rate = 30;
@@ -17,10 +11,10 @@ namespace MechScope
 
         public override void PostUpdate()
         {
-            if(Active && SuspendableWireManager.Running)
+            if (Active && SuspendableWireManager.Running)
             {
                 count++;
-                if(count > Rate)
+                if (count > Rate)
                 {
                     count = 0;
                     SuspendableWireManager.Resume();

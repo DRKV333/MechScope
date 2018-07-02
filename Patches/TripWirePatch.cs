@@ -1,26 +1,19 @@
 ﻿using Harmony;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Reflection.Emit;
 using System.Reflection;
+using System.Reflection.Emit;
 using Terraria;
-using Terraria.ModLoader;
-using Terraria.DataStructures;
 
 namespace MechScope.Patches
 {
-    [HarmonyPatch(typeof(Wiring),"TripWire")]
+    [HarmonyPatch(typeof(Wiring), "TripWire")]
     [HarmonyPriority(Priority.First)]
-    static class TripWirePatch
+    internal static class TripWirePatch
     {
         [HarmonyPrefix]
         public static bool Prefix(int left, int top, int width, int height)
         {
-           return SuspendableWireManager.BeginTripWire(left, top, width, height);
+            return SuspendableWireManager.BeginTripWire(left, top, width, height);
         }
 
         [HarmonyTranspiler]
@@ -74,14 +67,13 @@ namespace MechScope.Patches
                 }
 
                 //Before assigning the local that stores the teleporters queued for triggering, we want to exfiltrate it to the visualizer.
-                if(!injectedGrabTeleporter && item.opcode == OpCodes.Stloc_0)
+                if (!injectedGrabTeleporter && item.opcode == OpCodes.Stloc_0)
                 {
                     injectedGrabTeleporter = true;
 
                     yield return new CodeInstruction(OpCodes.Dup);
                     yield return new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("ReportTeleporterArray"));
                 }
-
 
                 //Inject code after call to XferWater at IL_011A, IL_022B, IL_033C and IL_044D
                 if (item.opcode == OpCodes.Call)

@@ -1,23 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria;
+﻿using Terraria;
 using Terraria.ModLoader;
 
 namespace MechScope
 {
-    class ConfigCommand : ModCommand
+    internal class ConfigCommand : ModCommand
     {
         public override string Command { get { return "msconfig"; } }
 
         public override CommandType Type { get { return CommandType.World; } }
 
-        public override string Usage { get { return "/msconfig [setting]\n" +
-                                                    "/msconfig [setting] [value]\nPossible settings: arate, smode, tvis\n" +
-                                                    "Valid values for smode: single, wire, source, stage\n" +
-                                                    "Valid values for tvis: wireskip, gatesdone, gatesnext, lamps, teleporters, pumps"; } }
+        public override string Usage
+        {
+            get
+            {
+                return "/msconfig [setting]\n" +
+                       "/msconfig [setting] [value]\nPossible settings: arate, smode, tvis\n" +
+                       "Valid values for smode: single, wire, source, stage\n" +
+                       "Valid values for tvis: wireskip, gatesdone, gatesnext, lamps, teleporters, pumps";
+            }
+        }
 
         public override string Description { get { return "Sets various settings for MechScope"; } }
 
@@ -65,18 +66,22 @@ namespace MechScope
                                 SuspendableWireManager.Mode = SuspendableWireManager.SuspendMode.perSingle;
                                 Main.NewText("Now suspending after every wire search step");
                                 break;
+
                             case "wire":
                                 SuspendableWireManager.Mode = SuspendableWireManager.SuspendMode.perWire;
                                 Main.NewText("Now suspending after each wire");
                                 break;
+
                             case "source":
                                 SuspendableWireManager.Mode = SuspendableWireManager.SuspendMode.perSource;
                                 Main.NewText("Now suspending after every activation source");
                                 break;
+
                             case "stage":
                                 SuspendableWireManager.Mode = SuspendableWireManager.SuspendMode.perStage;
                                 Main.NewText("Now suspending after every logic gate execution step");
                                 break;
+
                             default:
                                 Main.NewText("Valid modes: single, wire, source, step");
                                 break;
@@ -93,6 +98,7 @@ namespace MechScope
                                 else
                                     Main.NewText("Now not marking tiles explicitly marked for skipping");
                                 break;
+
                             case "gatesdone":
                                 VisualizerWorld.ShowGatesDone = !VisualizerWorld.ShowGatesDone;
                                 if (VisualizerWorld.ShowGatesDone)
@@ -100,6 +106,7 @@ namespace MechScope
                                 else
                                     Main.NewText("Now not marking gates that have already triggered in iteration");
                                 break;
+
                             case "gatesnext":
                                 VisualizerWorld.ShowUpcomingGates = !VisualizerWorld.ShowUpcomingGates;
                                 if (VisualizerWorld.ShowUpcomingGates)
@@ -107,6 +114,7 @@ namespace MechScope
                                 else
                                     Main.NewText("Now not marking gates queued up for triggering");
                                 break;
+
                             case "lamps":
                                 VisualizerWorld.ShowTriggeredLamps = !VisualizerWorld.ShowTriggeredLamps;
                                 if (VisualizerWorld.ShowTriggeredLamps)
@@ -114,6 +122,7 @@ namespace MechScope
                                 else
                                     Main.NewText("Now not marking lamp that were triggered, but not checked yet");
                                 break;
+
                             case "teleporters":
                                 VisualizerWorld.ShowTeleporters = !VisualizerWorld.ShowTeleporters;
                                 if (VisualizerWorld.ShowTeleporters)
@@ -121,6 +130,7 @@ namespace MechScope
                                 else
                                     Main.NewText("Now not marking teleporter trigger order");
                                 break;
+
                             case "pumps":
                                 VisualizerWorld.ShowPumps = !VisualizerWorld.ShowPumps;
                                 if (VisualizerWorld.ShowPumps)
@@ -128,6 +138,7 @@ namespace MechScope
                                 else
                                     Main.NewText("Now not marking pump trigger order");
                                 break;
+
                             default:
                                 Main.NewText("Valid values: wireskip, gatesdone, gatesnext, lamps, teleporters, pumps");
                                 break;
@@ -139,7 +150,6 @@ namespace MechScope
                         break;
                 }
             }
-
         }
     }
 }
