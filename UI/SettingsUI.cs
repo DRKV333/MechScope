@@ -22,9 +22,9 @@ namespace MechScope.UI
 
         public override void OnInitialize()
         {
-            HAlign = 0.5f;
+            HAlign = 0.25f;
             VAlign = 0.5f;
-            Width = new StyleDimension(0, 0.25f);
+            Width = new StyleDimension(0, 0);
             Height = new StyleDimension(0, 0);
 
             BasePanel = new UIPanel();
@@ -41,6 +41,8 @@ namespace MechScope.UI
 
             UIElement[] elements = new UIElement[]
             {
+                null,
+                new UIText("MechScope Settings"),
                 null,
                 new UIText("Set mode:"),
                 new UIToggle("Single", () => SuspendableWireManager.Mode == SuspendableWireManager.SuspendMode.perSingle, () => SuspendableWireManager.Mode = SuspendableWireManager.SuspendMode.perSingle),
@@ -92,6 +94,9 @@ namespace MechScope.UI
             element.Left = new StyleDimension(indent, 0);
             element.Top = new StyleDimension(Height.Pixels, 0);
             Height.Pixels += element.MinHeight.Pixels + 5;
+            float newWidth = element.MinWidth.Pixels + indent + 20;
+            if (Width.Pixels < newWidth)
+                Width.Pixels = newWidth;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
