@@ -5,7 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 using Terraria.ModLoader;
+using Terraria.UI;
+using MechScope.UI;
+using Terraria.Graphics;
 
 namespace MechScope
 {
@@ -15,8 +19,12 @@ namespace MechScope
         public static ModHotKey keyToggle;
         public static ModHotKey keyStep;
         public static ModHotKey keyAutoStep;
+        public static ModHotKey keySettings;
+        public static SettingsUI settingsUI;
 
-        HarmonyInstance harmonyInstance;
+        static HarmonyInstance harmonyInstance;
+        static UserInterface userInterface;
+        static LegacyGameInterfaceLayer UILayer;
 
         public MechScope()
         {
@@ -39,7 +47,34 @@ namespace MechScope
             keyToggle = RegisterHotKey("Toggle", "");
             keyStep = RegisterHotKey("Step", "");
             keyAutoStep = RegisterHotKey("Auto step", "");
+            keySettings = RegisterHotKey("Settings", "");
 
+            if(!Main.dedServ)
+            {
+                settingsUI = new SettingsUI();
+                userInterface = new UserInterface();
+                userInterface.SetState(settingsUI);
+                settingsUI.Activate();
+                UILayer = new LegacyGameInterfaceLayer("MechScope: Settings menu",
+                    delegate
+                    {
+                        settingsUI.Draw(Main.spriteBatch);
+                        userInterface.Update(Main._drawInterfaceGameTime);
+                        return true;
+                    }
+                );
+            }
+        }
+
+        public override void PreSaveAndQuit()
+        {
+            SuspendableWireManager.Resume();
+        }
+
+        public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
+        {
+            int index = layers.FindIndex(x => x.Name == "Vanilla: Inventory");
+            layers.Insert(index + 1, UILayer);
         }
 
         public override void Unload()

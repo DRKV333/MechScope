@@ -20,6 +20,9 @@ namespace MechScope
 
             if (MechScope.keyAutoStep.JustPressed)
                 AutoStepWorld.Active = !AutoStepWorld.Active;
+
+            if (MechScope.keySettings.JustPressed)
+                MechScope.settingsUI.Visible = !MechScope.settingsUI.Visible;
         }
     }
 }
