@@ -109,13 +109,17 @@ namespace MechScope
 
         public static CodeInstruction[] MakeSuspendSnippet(ILGenerator generator, SuspendMode mode)
         {
-            /*
+            /* (Stuff in [] is dependent on mode)
+             * 
              * [ldloc.2]
              * [ldarg.1]
              * [call void VisualizerWorld::AddWireSegment(Point16,int)]
              * 
              * [ldsfld SuspendMode  SuspendableWireManager::Mode]
              * [ldc.i4.0] //SuspenMode.perSingle
+             * [beq single]
+             * [ldsfld SuspendMode  SuspendableWireManager::Mode]
+             * [ldc.i4.1] //SuspenMode.perWire
              * [beq single]
              * 
              * ldsfld SuspendMode  SuspendableWireManager::Mode
@@ -130,11 +134,12 @@ namespace MechScope
             int len = 5;
             if (mode == SuspendMode.perSingle)
                 len += 3;
-            else
+
+            if (mode == SuspendMode.perSource || mode == SuspendMode.perStage)
                 len += 1;
 
-            if (mode == SuspendMode.perWire)
-                len += 3;
+            if (mode == SuspendMode.perSource)
+                len += 6;
 
             int i = 0;
 
@@ -150,23 +155,26 @@ namespace MechScope
                 inst[i++] = new CodeInstruction(OpCodes.Ldarg_1);
                 inst[i++] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("AddWireSegment"));
             }
-            if(mode == SuspendMode.perWire)
+            if(mode == SuspendMode.perSource)
             {
-                //When in perSingle mode, we still want to clear segments after each wire, even though we don't pause there.
+                //When in perSingle and perWire mode, we still want to clear segments after each source, even though we don't pause there.
                 inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
                 inst[i++] = new CodeInstruction(OpCodes.Ldc_I4_0);
                 labelWire = generator.DefineLabel();
+                inst[i++] = new CodeInstruction(OpCodes.Beq, labelWire);
+                inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
+                inst[i++] = new CodeInstruction(OpCodes.Ldc_I4_1);
                 inst[i++] = new CodeInstruction(OpCodes.Beq, labelWire);
             }
             inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
             inst[i++] = new CodeInstruction(OpCodes.Ldc_I4, (Int32)mode);
             inst[i++] = new CodeInstruction(OpCodes.Bne_Un, labelSkip);
             inst[i++] = new CodeInstruction(OpCodes.Call, typeof(SuspendableWireManager).GetMethod("SuspendWire"));
-            if(mode != SuspendMode.perSingle)
+            if(mode == SuspendMode.perSource || mode == SuspendMode.perStage)
             {
-                //We don't want to clear wire segments in HitWireSingle
+                //We want to clear visuals after we are done with a source or stage
                 inst[i] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("ResetSegments"));
-                if(mode == SuspendMode.perWire)
+                if(mode == SuspendMode.perSource)
                 {
                     inst[i].labels.Add(labelWire);
                 }
