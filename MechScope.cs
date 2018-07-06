@@ -81,6 +81,14 @@ namespace MechScope
             {
                 harmonyInstance.RemovePatch(item, HarmonyPatchType.All, harmonyInstance.Id);
             }
+
+            keyToggle = null;
+            keyStep = null;
+            keyAutoStep = null;
+            keySettings = null;
+            settingsUI = null;
+            userInterface = null;
+            UILayer = null;
         }
     }
 }

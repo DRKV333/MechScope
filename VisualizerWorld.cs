@@ -54,10 +54,10 @@ namespace MechScope
         private static readonly Color ColorWGreen = new Color(0, 255, 0, 128);
         private static readonly Color ColorWYellow = new Color(255, 255, 0, 128);
 
-        private static List<Rectangle> StartHighlight = new List<Rectangle>();
-        private static Dictionary<Point16, wireSegment> WireHighlight = new Dictionary<Point16, wireSegment>();
+        private static List<Rectangle> StartHighlight;
+        private static Dictionary<Point16, wireSegment> WireHighlight;
         private static Point16 PointHighlight = Point16.Zero;
-        private static Dictionary<Point16, ColoredMark> MarkCache = new Dictionary<Point16, ColoredMark>();
+        private static Dictionary<Point16, ColoredMark> MarkCache;
 
         private static Texture2D pixel;
 
@@ -65,17 +65,22 @@ namespace MechScope
         private static Queue<Point16> WiringGatesCurrent;
         private static Queue<Point16> WiringGatesNext; //We need static references for both of these, because they get swapped around.
         private static Dictionary<Point16, bool> WiringWireSkip;
-        private static Vector2[] WiringTeleporters = new Vector2[8];
+        private static Vector2[] WiringTeleporters;
 
         public override void Initialize()
         {
             pixel = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
             pixel.SetData(new Color[] { Color.White });
 
+            StartHighlight = new List<Rectangle>();
+            WireHighlight = new Dictionary<Point16, wireSegment>();
+            MarkCache = new Dictionary<Point16, ColoredMark>();
+
             WiringGatesDone = (Dictionary<Point16, bool>)typeof(Wiring).GetField("_GatesDone", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
             WiringGatesCurrent = (Queue<Point16>)typeof(Wiring).GetField("_GatesCurrent", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
             WiringGatesNext = Wiring._GatesNext;
             WiringWireSkip = (Dictionary<Point16, bool>)typeof(Wiring).GetField("_wireSkip", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
+            WiringTeleporters = new Vector2[8];
         }
 
         public override void PostDrawTiles()
@@ -310,6 +315,21 @@ namespace MechScope
                     MarkCache[point] = new ColoredMark(i.ToString(), Color.Green);
                 }
             }
+        }
+
+        public static void Unload()
+        {
+            pixel = null;
+
+            StartHighlight = null;
+            WireHighlight = null;
+            MarkCache = null;
+
+            WiringGatesDone = null;
+            WiringGatesCurrent = null;
+            WiringGatesNext = null;
+            WiringWireSkip = null;
+            WiringTeleporters = null;
         }
     }
 }
