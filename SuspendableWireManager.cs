@@ -84,7 +84,7 @@ namespace MechScope
             wiringWait.Set();
             mainWait.WaitOne();
 
-            if (!Running && queuedWireTrips.Count > 0)
+            while (!Running && queuedWireTrips.Count > 0)
             {
                 Rectangle trip = queuedWireTrips.Dequeue();
                 BeginTripWire(trip.X, trip.Y, trip.Width, trip.Height);
