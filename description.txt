@@ -11,3 +11,7 @@ Version history:
 
 v1.0
 - First release
+
+v1.1
+- Mod Browser release
+- Fixed unloading and other minor bugs
