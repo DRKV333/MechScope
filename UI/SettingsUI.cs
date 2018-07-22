@@ -51,7 +51,9 @@ namespace MechScope.UI
                 new UIToggle("Triggered pumps", () => VisualizerWorld.ShowPumps, () => VisualizerWorld.ShowPumps = !VisualizerWorld.ShowPumps),
                 null,
                 new UIText("Auto-step rate:"),
-                arateBox
+                arateBox,
+                null,
+                new UIAutoText(() => string.Format("Queued wire trips: {0}", SuspendableWireManager.QueuedNum)),
             };
 
             bool title = false;

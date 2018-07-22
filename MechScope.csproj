@@ -77,6 +77,7 @@
     <Compile Include="Patches\TripWirePatch.cs" />
     <Compile Include="Patches\UpdateMechPatch.cs" />
     <Compile Include="UI\SettingsUI.cs" />
+    <Compile Include="UI\UIAutoText.cs" />
     <Compile Include="UI\UIIntBox.cs" />
     <Compile Include="UI\UIToggle.cs" />
     <Compile Include="VisualizerWorld.cs" />

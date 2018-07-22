@@ -25,6 +25,7 @@ namespace MechScope
         public static bool Running { get; private set; }
         public static bool Active { get { return active; } set { active = value; if (!value) Resume(); } }
         public static SuspendMode Mode = SuspendMode.perStage;
+        public static int QueuedNum { get { return queuedWireTrips.Count; } }
 
         private static bool active = false;
         private static Queue<Rectangle> queuedWireTrips = new Queue<Rectangle>();
