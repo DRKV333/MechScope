@@ -22,13 +22,13 @@ namespace MechScope.UI
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             if (get())
-            {
                 TextColor = Color.Green;
-            }
             else
-            {
-                TextColor = Color.Red;
-            }
+                TextColor = Color.DarkRed;
+
+            if(IsMouseHovering)
+                TextColor *= 2;
+
             base.DrawSelf(spriteBatch);
         }
 
@@ -36,6 +36,15 @@ namespace MechScope.UI
         {
             Main.PlaySound(SoundID.MenuTick);
             set();
+
+            base.MouseDown(evt);
+        }
+
+        public override void MouseOver(UIMouseEvent evt)
+        {
+            Main.PlaySound(SoundID.MenuTick);
+
+            base.MouseOver(evt);
         }
     }
 }
