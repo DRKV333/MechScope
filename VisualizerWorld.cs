@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Terraria;
@@ -143,26 +144,26 @@ namespace MechScope
                 DrawTileBorder(item.Key, Color.White);
 
                 int startY = 2;
-                int height = 14 / item.Value.numWires();
+                int height = (int)Math.Ceiling(14f / item.Value.numWires());
 
                 if (item.Value.red)
                 {
-                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWRed);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16, item.Key.Y * 16 + startY, 16, height)), ColorWRed);
                     startY += height;
                 }
                 if (item.Value.blue)
                 {
-                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWBlue);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16, item.Key.Y * 16 + startY, 16, height)), ColorWBlue);
                     startY += height;
                 }
                 if (item.Value.green)
                 {
-                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWGreen);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16, item.Key.Y * 16 + startY, 16, height)), ColorWGreen);
                     startY += height;
                 }
                 if (item.Value.yellow)
                 {
-                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16 + 2, item.Key.Y * 16 + startY, 16, height + 1)), ColorWYellow);
+                    Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16, item.Key.Y * 16 + startY, 16, height)), ColorWYellow);
                     startY += height;
                 }
             }
