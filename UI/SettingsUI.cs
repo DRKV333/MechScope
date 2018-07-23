@@ -92,14 +92,6 @@ namespace MechScope.UI
                 Width.Pixels = newWidth;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            if (!Visible)
-                return;
-
-            base.Draw(spriteBatch);
-        }
-
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
             Main.LocalPlayer.mouseInterface = IsMouseHovering;

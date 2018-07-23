@@ -53,8 +53,11 @@ namespace MechScope
                 UILayer = new LegacyGameInterfaceLayer("MechScope: Settings menu",
                     delegate
                     {
-                        settingsUI.Draw(Main.spriteBatch);
-                        userInterface.Update(Main._drawInterfaceGameTime);
+                        if (settingsUI.Visible)
+                        {
+                            settingsUI.Draw(Main.spriteBatch);
+                            userInterface.Update(Main._drawInterfaceGameTime);
+                        }
                         return true;
                     }
                 );
