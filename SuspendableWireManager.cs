@@ -29,7 +29,6 @@ namespace MechScope
 
         private static bool active = false;
         private static Queue<Rectangle> queuedWireTrips = new Queue<Rectangle>();
-        private static Thread wireThread;
         private static bool runnigBackup = false; //Wiring.running should be the same as Running in theory, but it isn't. (probably a bug)
         private static AutoResetEvent wiringWait = new AutoResetEvent(false);
         private static AutoResetEvent mainWait = new AutoResetEvent(false);
@@ -58,7 +57,7 @@ namespace MechScope
 
             Running = true;
 
-            wireThread = new Thread(delegate (object rand)
+            Thread wireThread = new Thread(delegate (object rand)
             {
                 Main.rand = (UnifiedRandom)rand; //Main.rand is ThreadStatic, but we need it for faulty gates
                 Wiring.TripWire(left, top, width, height);

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Terraria.UI;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria.GameContent.UI.Elements;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MechScope.UI
 {
-    class UIAutoText : UIText
+    internal class UIAutoText : UIText
     {
-        Func<string> text;
+        private Func<string> text;
 
         public UIAutoText(Func<string> text) : base(text(), 1, false)
         {

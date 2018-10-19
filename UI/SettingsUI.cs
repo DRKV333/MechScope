@@ -10,8 +10,6 @@ namespace MechScope.UI
         public bool Visible = false;
         private UIPanel BasePanel;
 
-        private UIIntBox arateBox;
-
         public override void OnInitialize()
         {
             HAlign = 0.25f;
@@ -28,7 +26,7 @@ namespace MechScope.UI
             BasePanel.Height = new StyleDimension(0, 1);
             Append(BasePanel);
 
-            arateBox = new UIIntBox(() => AutoStepWorld.Rate, x => AutoStepWorld.Rate = x, 2);
+            UIIntBox arateBox = new UIIntBox(() => AutoStepWorld.Rate, x => AutoStepWorld.Rate = x, 2);
             arateBox.Width = new StyleDimension(0, 0.25f);
 
             UIElement[] elements = new UIElement[]

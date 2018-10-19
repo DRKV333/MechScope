@@ -10,8 +10,8 @@ namespace MechScope.UI
 {
     internal class UIToggle : UIText
     {
-        private Func<bool> get;
-        private Action set;
+        private readonly Func<bool> get;
+        private readonly Action set;
 
         public UIToggle(string text, Func<bool> get, Action set) : base(text, 1, false)
         {
@@ -26,7 +26,7 @@ namespace MechScope.UI
             else
                 TextColor = Color.DarkRed;
 
-            if(IsMouseHovering)
+            if (IsMouseHovering)
                 TextColor *= 2;
 
             base.DrawSelf(spriteBatch);

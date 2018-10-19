@@ -12,7 +12,7 @@ namespace MechScope
 {
     internal class VisualizerWorld : ModWorld
     {
-        private class wireSegment
+        private class WireSegment
         {
             public bool red;
             public bool blue;
@@ -56,7 +56,7 @@ namespace MechScope
         private static readonly Color ColorWYellow = new Color(255, 255, 0, 128);
 
         private static List<Rectangle> StartHighlight;
-        private static Dictionary<Point16, wireSegment> WireHighlight;
+        private static Dictionary<Point16, WireSegment> WireHighlight;
         private static Point16 PointHighlight = Point16.Zero;
         private static Dictionary<Point16, ColoredMark> MarkCache;
 
@@ -74,7 +74,7 @@ namespace MechScope
             pixel.SetData(new Color[] { Color.White });
 
             StartHighlight = new List<Rectangle>();
-            WireHighlight = new Dictionary<Point16, wireSegment>();
+            WireHighlight = new Dictionary<Point16, WireSegment>();
             MarkCache = new Dictionary<Point16, ColoredMark>();
 
             WiringGatesDone = (Dictionary<Point16, bool>)typeof(Wiring).GetField("_GatesDone", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
@@ -164,7 +164,6 @@ namespace MechScope
                 if (item.Value.yellow)
                 {
                     Main.spriteBatch.Draw(pixel, WorldRectToScreen(new Rectangle(item.Key.X * 16, item.Key.Y * 16 + startY, 16, height)), ColorWYellow);
-                    startY += height;
                 }
             }
 
@@ -213,13 +212,13 @@ namespace MechScope
         {
             PointHighlight = point;
 
-            wireSegment segment;
+            WireSegment segment;
             if (!WireHighlight.TryGetValue(point, out segment))
             {
                 if (WireHighlight.Count > maxWireVisual)
                     return;
 
-                segment = new wireSegment();
+                segment = new WireSegment();
                 WireHighlight.Add(point, segment);
             }
 

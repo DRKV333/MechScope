@@ -14,10 +14,10 @@ namespace MechScope.UI
         private string text;
 
         private bool hasFocus = false;
-        private int maxDigits;
+        private readonly int maxDigits;
 
-        private Action<int> set;
-        private Func<int> get;
+        private readonly Action<int> set;
+        private readonly Func<int> get;
 
         public UIIntBox(Func<int> get, Action<int> set, int maxDigits) : base("", 1, false)
         {
@@ -101,7 +101,7 @@ namespace MechScope.UI
 
         public override void MouseOver(UIMouseEvent evt)
         {
-            if(!Main.drawingPlayerChat && !hasFocus)
+            if (!Main.drawingPlayerChat && !hasFocus)
                 Main.PlaySound(SoundID.MenuTick);
 
             base.MouseOver(evt);

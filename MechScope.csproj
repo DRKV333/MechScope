@@ -69,6 +69,7 @@
     <Compile Include="AutoStepWorld.cs" />
     <Compile Include="ConfigCommand.cs" />
     <Compile Include="ControlPlayer.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Patches\HitWirePatch.cs" />
     <Compile Include="Patches\LogicGatePassPatch.cs" />
     <Compile Include="MechScope.cs" />
