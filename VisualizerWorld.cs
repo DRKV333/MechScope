@@ -70,8 +70,11 @@ namespace MechScope
 
         public override void Initialize()
         {
-            pixel = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
-            pixel.SetData(new Color[] { Color.White });
+            if (!Main.dedServ)
+            {
+                pixel = new Texture2D(Main.graphics.GraphicsDevice, 1, 1);
+                pixel.SetData(new Color[] { Color.White });
+            }
 
             StartHighlight = new List<Rectangle>();
             WireHighlight = new Dictionary<Point16, WireSegment>();
