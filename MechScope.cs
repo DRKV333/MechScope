@@ -78,12 +78,7 @@ namespace MechScope
 
         public override void Unload()
         {
-            MethodBase[] methods = harmonyInstance.GetPatchedMethods().ToArray();
-
-            foreach (var item in methods)
-            {
-                harmonyInstance.RemovePatch(item, HarmonyPatchType.All, harmonyInstance.Id);
-            }
+            harmonyInstance.UnpatchAll();
 
             keyToggle = null;
             keyStep = null;
