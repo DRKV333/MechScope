@@ -18,3 +18,8 @@ v1.1
 
 v1.2
 - Improved UI
+
+v1.3
+- Improved UI
+- Fixed multiplayer crashes
+- Fixed Harmony unloading
