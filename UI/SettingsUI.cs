@@ -92,7 +92,8 @@ namespace MechScope.UI
 
         protected override void DrawSelf(SpriteBatch spriteBatch)
         {
-            Main.LocalPlayer.mouseInterface = IsMouseHovering;
+            if (BasePanel.IsMouseHovering)
+                Main.LocalPlayer.mouseInterface = true;
             base.DrawSelf(spriteBatch);
         }
     }
