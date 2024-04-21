@@ -5,6 +5,5 @@ For more information, please visit the terraria forums.\
 [MechScope - Wiring visualized](https://forums.terraria.org/index.php?threads/mechscope-wiring-visualized.70665/)
 
 # Building
-To build the mod, you need to place two refernece libraries into a folder named "lib".\
-You can get Harmony (0Harmony.dll) from the [Harmony GitHub repo](https://github.com/pardeike/Harmony/releases).\
-The native ReLogic.dll is available in the [TModLoader repo](https://github.com/blushiemagic/tModLoader/tree/master/references).
+To build the mod, you need to place the Harmony library into a folder named "lib".\
+You can get Harmony (0Harmony.dll) from the [Harmony GitHub repo](https://github.com/pardeike/Harmony/releases).
