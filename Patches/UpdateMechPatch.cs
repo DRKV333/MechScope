@@ -1,4 +1,5 @@
-﻿using Harmony;
+﻿using HarmonyLib;
+using Terraria;
 
 namespace MechScope.Patches
 {
