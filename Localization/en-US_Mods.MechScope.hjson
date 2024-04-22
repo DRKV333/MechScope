@@ -1,0 +1,6 @@
+Keybinds: {
+	Toggle.DisplayName: Toggle
+	Step.DisplayName: Step
+	"Auto step.DisplayName": Auto step
+	Settings.DisplayName: Settings
+}
