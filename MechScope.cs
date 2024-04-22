@@ -37,7 +37,7 @@ namespace MechScope
             if (harmony == null)
                 harmony = new Harmony(Name);
 
-            harmony.PatchAll();
+            harmony.PatchAll(typeof(MechScope).Assembly);
 
             keyToggle = KeybindLoader.RegisterKeybind(this, "Toggle", "NumPad1");
             keyStep = KeybindLoader.RegisterKeybind(this, "Step", "NumPad2");
