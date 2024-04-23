@@ -1,8 +1,6 @@
-﻿using HarmonyLib;
+﻿using MechScope.Patches;
 using MechScope.UI;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.UI;
@@ -17,7 +15,6 @@ namespace MechScope
         public static ModKeybind keySettings;
         public static SettingsUI settingsUI;
         public static LegacyGameInterfaceLayer UILayer;
-        public static Harmony harmony;
 
         private static UserInterface userInterface;
 
@@ -34,10 +31,10 @@ namespace MechScope
 
         public override void Load()
         {
-            if (harmony == null)
-                harmony = new Harmony(Name);
-
-            harmony.PatchAll(typeof(MechScope).Assembly);
+            HitWirePatch.Load();
+            LogicGatePassPatch.Load();
+            TripWirePatch.Load();
+            UpdateMechPatch.Load();
 
             keyToggle = KeybindLoader.RegisterKeybind(this, "Toggle", "NumPad1");
             keyStep = KeybindLoader.RegisterKeybind(this, "Step", "NumPad2");
@@ -66,8 +63,6 @@ namespace MechScope
 
         public override void Unload()
         {
-            harmony.UnpatchAll();
-
             keyToggle = null;
             keyStep = null;
             keyAutoStep = null;

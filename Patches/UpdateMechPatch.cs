@@ -1,16 +1,18 @@
-﻿using HarmonyLib;
-using Terraria;
+﻿using Terraria;
 
 namespace MechScope.Patches
 {
-    [HarmonyPatch(typeof(Terraria.Wiring), "UpdateMech")]
-    [HarmonyPriority(Priority.First)]
     internal class UpdateMechPatch
     {
-        [HarmonyPrefix]
-        public static bool Prefix()
+        public static void Load()
         {
-            return !SuspendableWireManager.Running;
+            On_Wiring.UpdateMech += Prefix;
+        }
+
+        private static void Prefix(On_Wiring.orig_UpdateMech orig)
+        {
+            if (!SuspendableWireManager.Running)
+                orig();
         }
     }
 }
