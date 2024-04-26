@@ -1,0 +1,93 @@
+In my opinion, there is one big issue with wiring. You can’t really SEE what is actually going on. Everything happens instantly once you flip the switch. This isn’t a big deal if you just want to build simpler door mechanisms or traps, but when you have a huge chain of logic gates, things will quickly become rather confusing… To resolve this problem, I have created MechScope, a TModLoader mod that can pause and visualize the wiring execution process.
+
+[h1]How does it work?[/h1]
+There are 4 hotkeys you can use to control MechScope. They can be remapped in the vanilla controls menu. (If the listed default keys don't work, you might need to reset them manually.)
+
+[img]https://i.imgur.com/3Q92Hv1.png[/img]
+
+[h2]Toggle (NumPad1)[/h2]
+Activates or deactivates MechScope. While active, any wire trigger will be intercepted and paused. The state of the wiring system will be displayed based on the visual settings.
+
+[h2]Step (NumPad2)[/h2]
+Advances the wiring system by one step. The granularity of the steps depends the mode setting.
+
+[h2]Auto-step (NumPad3)[/h2]
+Activates or deactivates the automatic step timer. When active, a step will happen once the number of frames indicated by the auto step rate have passed.
+
+[h2]Settings (NumPad5)[/h2]
+Opens the settings menu.
+
+[h1]Mouse indicator[/h1]
+The small squares next to your cursor indicate the state of the mod.
+[list]
+    [*]Yellow square: MechScope is active
+    [*]Red square: MechScope is active, and wiring is currently paused
+    [*]Green square: auto-step is active.
+[/list]
+[img]https://i.imgur.com/vn4gRxc.png[/img] [img]https://i.imgur.com/5sxzH7Q.png[/img]
+
+While the wiring system is paused, additional wire triggers will be queued up, and will only run once the current wire iteration has finished. Timers will also be paused.
+
+[img]https://i.imgur.com/OT5oiqO.png[/img]
+
+[h1]Mode[/h1]
+The mode setting determines when the wring gets paused during the execution process.
+
+[h2]Single[/h2]
+The wiring system will be paused after examining every individual block.
+
+[img]https://i.imgur.com/x0zBocN.gif[/img]
+
+[h2]Wire[/h2]
+The wiring will pause after processing a whole run of wires. Red, blue, green and yellow wires will all appear separately.
+
+[img]https://i.imgur.com/jyQHQMB.gif[/img]
+
+[h2]Source[/h2]
+Wiring will be paused after handling all wires connected to a trigger source.
+
+[img]https://i.imgur.com/TiUIlV6.gif[/img]
+
+[h2]Stage[/h2]
+Wiring will only be paused before processing logic gates, that had their lamps toggled. This mode lets you find logic gate "delay" based issues easily.
+
+[img]https://i.imgur.com/mMWfkQz.gif[/img]
+
+[h1]Visuals[/h1]
+The source of the wire signal that is currently being processed is marked with a red border. In single mode, the tile that is currently being examined will also have a similar border. Triggered wires will be marked with a square with the same color as the wire.
+
+[h2]Wire skip[/h2]
+Marks tiles, that have been explicitly flagged to skip wire activations on, with a red 'X'. This usually happens when multi tile objects are triggered, such as statues. Wire skip marks will only work in Single mode.
+
+[h2]Gates done[/h2]
+Marks gates with a white 'X' if they have already triggered during the current wire iteration. If triggered again, these gates won't emit a signal, they will only make a puff of smoke.
+
+[h2]Upcoming gates[/h2]
+These are the gates that had their state changed, and are currently waiting for their turn to output a signal. They are marked by a red 'O'.
+
+[h2]Triggered lamps[/h2]
+These lamps, marked by an orange '?', were triggered, but the state of their gate has not been evaluated yet. This will not display in Stage mode.
+
+[h2]Triggered teleporters[/h2]
+A white number will show next to activated teleporters, indicating which wire they were triggered by.
+[list]
+    [*]1 = red
+    [*]2 = blue
+    [*]3 = green
+    [*]4 = yellow
+[/list]
+These numbers also tell you what order the teleportations will happen in. This only works in Source or Stage mode.
+
+[h2]Triggered pumps[/h2]
+Numbers pumps based on the order they were activated in. Red is input, green is output.
+
+I've listed these markers in the order in which they are drawn. If a tile has two different markers on it, only the one further down the list will be shown.
+
+[h1]Auto-step rate[/h1]
+This number indicates how many frames have to pass before an automatic step happens. A setting of 30 means one step will happen once every half a second.
+
+[h1]Compatibility[/h1]
+This mod does not affect the way wiring actually works, so all wiring devices should function as normal, unless they rely on other game aspect, such as HOIK actors. This mod should also be compatible with other wring related mods. MechScope currently does not work in multiplayer. I don't really see many people interested in this feature, but if there's a demand for it, I can probably make it work.
+
+[h1]Open Source[/h1]
+You can find the mod's source code here: https://github.com/DRKV333/MechScope/ For more information, visit the mod's thread on the Terraria Community Forums: https://forums.terraria.org/index.php?threads/mechscope-wiring-visualized.70665/
