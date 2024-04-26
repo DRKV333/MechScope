@@ -91,3 +91,5 @@ This mod does not affect the way wiring actually works, so all wiring devices sh
 
 [h1]Open Source[/h1]
 You can find the mod's source code here: https://github.com/DRKV333/MechScope/ For more information, visit the mod's thread on the Terraria Community Forums: https://forums.terraria.org/index.php?threads/mechscope-wiring-visualized.70665/
+
+Thanks to [url=https://github.com/yfdyzjt]yfdyzjt[/url] for porting the mod to tModLoader 1.4.

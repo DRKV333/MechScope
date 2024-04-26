@@ -7,6 +7,8 @@ Default hotkeys:
     Auto-step -  NumPad3
     Settings  -  NumPad5
 
+Thanks to yfdyzjt for porting the mod to tModLoader 1.4.
+
 Version history:
 
 v1.0
