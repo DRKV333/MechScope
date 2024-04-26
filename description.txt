@@ -25,3 +25,7 @@ v1.3
 - Improved UI
 - Fixed multiplayer crashes
 - Fixed Harmony unloading
+
+v2.0
+- Ported to tModLoader 1.4
+- Removed dependency on Harmony
