@@ -33,6 +33,7 @@ namespace MechScope
         {
             HitWirePatch.Load();
             LogicGatePassPatch.Load();
+            PlaySoundPatch.Load();
             TripWirePatch.Load();
             UpdateMechPatch.Load();
 

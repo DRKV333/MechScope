@@ -36,9 +36,11 @@ namespace MechScope
             Running = false;
         }
 
+        public static bool IsWireThread => Thread.CurrentThread.Name == wireThreadName;
+
         public static bool BeginTripWire(int left, int top, int width, int height)
         {
-            if (!Active || Thread.CurrentThread.Name == wireThreadName)
+            if (!Active || IsWireThread)
             {
                 VisualizerWorld.AddStart(new Rectangle(left, top, width, height));
                 return true;
