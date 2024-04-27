@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameInput;
 using Terraria.ID;
@@ -58,7 +59,7 @@ namespace MechScope.UI
 
                 if (newText.Length == 0)
                 {
-                    Main.PlaySound(SoundID.MenuTick);
+                    SoundEngine.PlaySound(SoundID.MenuTick);
                     text = newText;
                     SetText(text + "|");
                     return;
@@ -67,7 +68,7 @@ namespace MechScope.UI
                 int number;
                 if (int.TryParse(newText, out number))
                 {
-                    Main.PlaySound(SoundID.MenuTick);
+                    SoundEngine.PlaySound(SoundID.MenuTick);
                     text = newText;
                     SetText(text + "|");
                     set(number);
@@ -87,22 +88,22 @@ namespace MechScope.UI
             base.DrawSelf(spriteBatch);
         }
 
-        public override void MouseDown(UIMouseEvent evt)
+        public override void LeftMouseDown(UIMouseEvent evt)
         {
             if (!Main.drawingPlayerChat)
             {
-                Main.PlaySound(SoundID.MenuTick);
+                SoundEngine.PlaySound(SoundID.MenuTick);
                 hasFocus = true;
                 BackgroundColor = Color.Yellow;
                 SetText(text + "|");
             }
-            base.MouseDown(evt);
+            base.LeftMouseDown(evt);
         }
 
         public override void MouseOver(UIMouseEvent evt)
         {
             if (!Main.drawingPlayerChat && !hasFocus)
-                Main.PlaySound(SoundID.MenuTick);
+                SoundEngine.PlaySound(SoundID.MenuTick);
 
             base.MouseOver(evt);
         }

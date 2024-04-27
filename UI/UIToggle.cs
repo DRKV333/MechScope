@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.UI;
@@ -32,17 +33,17 @@ namespace MechScope.UI
             base.DrawSelf(spriteBatch);
         }
 
-        public override void MouseDown(UIMouseEvent evt)
+        public override void LeftMouseDown(UIMouseEvent evt)
         {
-            Main.PlaySound(SoundID.MenuTick);
+            SoundEngine.PlaySound(SoundID.MenuTick);
             set();
 
-            base.MouseDown(evt);
+            base.LeftMouseDown(evt);
         }
 
         public override void MouseOver(UIMouseEvent evt)
         {
-            Main.PlaySound(SoundID.MenuTick);
+            SoundEngine.PlaySound(SoundID.MenuTick);
 
             base.MouseOver(evt);
         }

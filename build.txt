@@ -1,10 +1,9 @@
 author = DRKV
-version = 1.3
+version = 2.0
 displayName = MechScope
 side = Client
 includePDB = false
-dllReferences = 0Harmony
-buildIgnore = .gitignore, description.txt, *.csproj*, *.sln, .git/*, .vs/*, bin/*, obj/*, *.xcf, lib/ReLogic.dll
+buildIgnore = .gitignore, description.txt, *.csproj*, *.sln, .git/*, .vs/*, bin/*, obj/*, *.xcf
 hideCode = false
 hideResources = false
 includeSource = true

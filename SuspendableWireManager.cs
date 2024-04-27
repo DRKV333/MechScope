@@ -1,8 +1,6 @@
-﻿using Harmony;
-using Microsoft.Xna.Framework;
-using System;
+﻿using Microsoft.Xna.Framework;
+using MonoMod.Cil;
 using System.Collections.Generic;
-using System.Reflection.Emit;
 using System.Threading;
 using Terraria;
 using Terraria.Utilities;
@@ -38,9 +36,11 @@ namespace MechScope
             Running = false;
         }
 
+        public static bool IsWireThread => Thread.CurrentThread.Name == wireThreadName;
+
         public static bool BeginTripWire(int left, int top, int width, int height)
         {
-            if (!Active || Thread.CurrentThread.Name == wireThreadName)
+            if (!Active || IsWireThread)
             {
                 VisualizerWorld.AddStart(new Rectangle(left, top, width, height));
                 return true;
@@ -104,7 +104,7 @@ namespace MechScope
             }
         }
 
-        public static CodeInstruction[] MakeSuspendSnippet(ILGenerator generator, SuspendMode mode)
+        public static void MakeSuspendSnippet(ILCursor cursor, SuspendMode mode)
         {
             /* (Stuff in [] is dependent on mode)
              *
@@ -128,59 +128,45 @@ namespace MechScope
              * skip: nop
              */
 
-            int len = 5;
-            if (mode == SuspendMode.perSingle)
-                len += 3;
-
-            if (mode == SuspendMode.perSource || mode == SuspendMode.perStage)
-                len += 1;
-
-            if (mode == SuspendMode.perSource)
-                len += 6;
-
-            int i = 0;
-
-            CodeInstruction[] inst = new CodeInstruction[len];
-
-            Label labelSkip = generator.DefineLabel();
-            Label labelWire = default(Label);
+            ILLabel labelSkip = cursor.DefineLabel();
+            ILLabel labelSingle = null;
 
             if (mode == SuspendMode.perSingle)
             {
                 //In HitWireSingle we want to exfiltrate the call arguments, so we can visualize the wire we hit.
-                inst[i++] = new CodeInstruction(OpCodes.Ldloc_2);
-                inst[i++] = new CodeInstruction(OpCodes.Ldarg_1);
-                inst[i++] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("AddWireSegment"));
+                cursor.EmitLdloc2();
+                cursor.EmitLdarg1();
+                cursor.EmitCall(typeof(VisualizerWorld).GetMethod("AddWireSegment"));
             }
-            if (mode == SuspendMode.perSource)
+            else if (mode == SuspendMode.perSource)
             {
-                //When in perSingle and perWire mode, we still want to clear segments after each source, even though we don't pause there.
-                inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
-                inst[i++] = new CodeInstruction(OpCodes.Ldc_I4_0);
-                labelWire = generator.DefineLabel();
-                inst[i++] = new CodeInstruction(OpCodes.Beq, labelWire);
-                inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
-                inst[i++] = new CodeInstruction(OpCodes.Ldc_I4_1);
-                inst[i++] = new CodeInstruction(OpCodes.Beq, labelWire);
+                //When in perSingle or perWire mode, we still want to clear segments after each source, even though we don't pause there.
+                labelSingle = cursor.DefineLabel();
+
+                cursor.EmitLdsfld(typeof(SuspendableWireManager).GetField("Mode"));
+                cursor.EmitLdcI4(0);
+                cursor.EmitBeq(labelSingle);
+
+                cursor.EmitLdsfld(typeof(SuspendableWireManager).GetField("Mode"));
+                cursor.EmitLdcI4(1);
+                cursor.EmitBeq(labelSingle);
             }
-            inst[i++] = new CodeInstruction(OpCodes.Ldsfld, typeof(SuspendableWireManager).GetField("Mode"));
-            inst[i++] = new CodeInstruction(OpCodes.Ldc_I4, (Int32)mode);
-            inst[i++] = new CodeInstruction(OpCodes.Bne_Un, labelSkip);
-            inst[i++] = new CodeInstruction(OpCodes.Call, typeof(SuspendableWireManager).GetMethod("SuspendWire"));
+
+            cursor.EmitLdsfld(typeof(SuspendableWireManager).GetField("Mode"));
+            cursor.EmitLdcI4((int)mode);
+            cursor.EmitBneUn(labelSkip);
+            cursor.EmitCall(typeof(SuspendableWireManager).GetMethod("SuspendWire"));
+
             if (mode == SuspendMode.perSource || mode == SuspendMode.perStage)
             {
                 //We want to clear visuals after we are done with a source or stage
-                inst[i] = new CodeInstruction(OpCodes.Call, typeof(VisualizerWorld).GetMethod("ResetSegments"));
-                if (mode == SuspendMode.perSource)
-                {
-                    inst[i].labels.Add(labelWire);
-                }
-                i++;
+                if (labelSingle != null)
+                    cursor.MarkLabel(labelSingle);
+                cursor.EmitCall(typeof(VisualizerWorld).GetMethod("ResetSegments"));
             }
-            inst[i] = new CodeInstruction(OpCodes.Nop);
-            inst[i].labels.Add(labelSkip);
 
-            return inst;
+            cursor.MarkLabel(labelSkip);
+            cursor.EmitNop();
         }
     }
 }

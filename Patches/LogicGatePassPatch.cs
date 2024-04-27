@@ -1,70 +1,39 @@
-﻿using Harmony;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
+﻿using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using Terraria;
 
 namespace MechScope.Patches
 {
-    [HarmonyPatch(typeof(Wiring), "LogicGatePass")]
-    [HarmonyPriority(Priority.Normal)]
     internal class LogicGatePassPatch
     {
-        [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> Transpiler(ILGenerator generator, IEnumerable<CodeInstruction> original)
+        public static void Load()
         {
-            bool inject = false;
-            bool injectedPostBranch = false;
-            bool injectedPreClearGatesDone = false;
+            IL_Wiring.LogicGatePass += Transpiler;
+        }
 
-            int GatesDoneCount = 0;
+        private static void Transpiler(ILContext context)
+        {
+            InjectedPostBranch(context);
+            InjectedPreClearGatesDone(context);
+        }
 
-            Stack<Label> prevJumps = new Stack<Label>();
+        //We want to inject after the end of the first loop containing CheckLogicGate.
+        private static void InjectedPostBranch(ILContext context)
+        {
+            ILCursor cursor = new ILCursor(context).Goto(0);
 
-            foreach (var item in original)
-            {
-                if (inject)
-                {
-                    inject = false;
+            cursor.GotoNext(MoveType.After, x => x.MatchBgt(out ILLabel label) && label.Target.OpCode == OpCodes.Ldsfld);
+            SuspendableWireManager.MakeSuspendSnippet(cursor, SuspendableWireManager.SuspendMode.perStage);
+        }
 
-                    CodeInstruction[] inst = SuspendableWireManager.MakeSuspendSnippet(generator, SuspendableWireManager.SuspendMode.perStage);
+        //We also need to put one on the end before _GatesDone.Clear()
+        private static void InjectedPreClearGatesDone(ILContext context)
+        {
+            ILCursor cursor = new ILCursor(context).Goto(0);
 
-                    foreach (var item2 in inst)
-                    {
-                        //ErrorLogger.Log(item2);
-                        yield return item2;
-                    }
-                }
-
-                //We want to inject after the end of the first loop at IL_0045
-                if (!injectedPostBranch && (item.opcode == OpCodes.Bgt || item.opcode == OpCodes.Bgt_S))
-                {
-                    injectedPostBranch = true;
-                    inject = true;
-                }
-
-                //We also need to put one on the end before IL_00D7
-                if (!injectedPreClearGatesDone && item.opcode == OpCodes.Ldsfld)
-                {
-                    FieldInfo SetField = item.operand as FieldInfo;
-                    if (SetField != null && SetField.Name == "_GatesDone")
-                    {
-                        if (++GatesDoneCount == 4)
-                        {
-                            injectedPreClearGatesDone = true;
-                            inject = true;
-                        }
-                    }
-                }
-
-                if (item.opcode == OpCodes.Brfalse || item.opcode == OpCodes.Brfalse_S)
-                {
-                    prevJumps.Push((Label)item.operand);
-                }
-
-                //ErrorLogger.Log(item);
-                yield return item;
-            }
+            cursor.Goto(cursor.Instrs.Count - 1);
+            cursor.GotoPrev(MoveType.Before, x => x.MatchLdsfld("Terraria.Wiring", "_GatesDone"));
+            SuspendableWireManager.MakeSuspendSnippet(cursor, SuspendableWireManager.SuspendMode.perStage);
         }
     }
 }
