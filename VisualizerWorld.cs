@@ -177,7 +177,10 @@ namespace MechScope
         private void DrawTileMarker(Point16 tile, ColoredMark mark)
         {
             Vector2 text = FontAssets.MouseText.Value.MeasureString(mark.mark);
-            Vector2 loc = new Vector2(tile.X * 16 - (int)Main.screenPosition.X + 8, tile.Y * 16 - (int)Main.screenPosition.Y + 12) - text / 2;
+            Vector2 loc = new Vector2(
+                (tile.X * 16 - Main.screenPosition.X + 8) * Main.GameViewMatrix.Zoom.X + 0.5f * Main.screenWidth * (1 - Main.GameViewMatrix.Zoom.X),
+                (tile.Y * 16 - Main.screenPosition.Y + 12) * Main.GameViewMatrix.Zoom.Y + 0.5f * Main.screenHeight * (1 - Main.GameViewMatrix.Zoom.Y) 
+            ) - text / 2;
 
             if (Main.LocalPlayer.gravDir == -1)
                 loc.Y = Main.screenHeight - loc.Y - 16;
@@ -187,17 +190,25 @@ namespace MechScope
 
         private void DrawTileBorder(Point16 tile, Color color, int width = 1, int height = 1)
         {
+            var borderX = (int)(2 * Main.GameViewMatrix.Zoom.X);
+            var borderY = (int)(2 * Main.GameViewMatrix.Zoom.Y);
+
             Rectangle rect = WorldRectToScreen(new Rectangle(tile.X * 16, tile.Y * 16, width * 16, height * 16));
 
-            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, rect.Width, 2), null, color);
-            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y + rect.Height, rect.Width, 2), null, color);
-            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, 2, rect.Height), null, color);
-            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X + rect.Width, rect.Y, 2, rect.Height + 2), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, rect.Width, borderY), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y + rect.Height, rect.Width, borderY), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X, rect.Y, borderX, rect.Height), null, color);
+            Main.spriteBatch.Draw(pixel, new Rectangle(rect.X + rect.Width, rect.Y, borderX, rect.Height + borderX), null, color);
         }
 
         private Rectangle WorldRectToScreen(Rectangle rect)
         {
-            Rectangle newRect = new Rectangle(rect.X - (int)Main.screenPosition.X, rect.Y - (int)Main.screenPosition.Y, rect.Width, rect.Height);
+            Rectangle newRect = new Rectangle(
+                (int)((rect.X - Main.screenPosition.X) * Main.GameViewMatrix.Zoom.X + 0.5f * Main.screenWidth * (1 - Main.GameViewMatrix.Zoom.X)),
+                (int)((rect.Y - Main.screenPosition.Y) * Main.GameViewMatrix.Zoom.Y + 0.5f * Main.screenHeight * (1 - Main.GameViewMatrix.Zoom.Y)),
+                (int)(rect.Width * Main.GameViewMatrix.Zoom.X),
+                (int)(rect.Height * Main.GameViewMatrix.Zoom.Y)
+            );
 
             if (Main.LocalPlayer.gravDir == -1)
                 newRect.Y = Main.screenHeight - newRect.Y - newRect.Height;
