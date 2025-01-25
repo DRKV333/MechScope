@@ -1,5 +1,5 @@
 author = DRKV
-version = 2.0
+version = 2.1
 displayName = MechScope
 side = Client
 includePDB = false

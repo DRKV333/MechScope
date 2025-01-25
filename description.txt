@@ -29,3 +29,6 @@ v1.3
 v2.0
 - Ported to tModLoader 1.4
 - Removed dependency on Harmony
+
+v2.1
+- Fixed Issue with Zooming of Rectangles and Markers
