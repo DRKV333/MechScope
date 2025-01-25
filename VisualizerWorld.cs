@@ -180,12 +180,22 @@ namespace MechScope
             Vector2 loc = new Vector2(
                 (tile.X * 16 - Main.screenPosition.X + 8) * Main.GameViewMatrix.Zoom.X + 0.5f * Main.screenWidth * (1 - Main.GameViewMatrix.Zoom.X),
                 (tile.Y * 16 - Main.screenPosition.Y + 12) * Main.GameViewMatrix.Zoom.Y + 0.5f * Main.screenHeight * (1 - Main.GameViewMatrix.Zoom.Y) 
-            ) - text / 2;
+            ) - text * Main.GameViewMatrix.Zoom.X / 2;
 
             if (Main.LocalPlayer.gravDir == -1)
                 loc.Y = Main.screenHeight - loc.Y - 16;
 
-            Main.spriteBatch.DrawString(FontAssets.MouseText.Value, mark.mark, loc, mark.color);
+            Main.spriteBatch.DrawString(
+                FontAssets.MouseText.Value,
+                mark.mark,
+                loc,
+                mark.color,
+                0.0f,
+                Vector2.Zero,
+                Main.GameViewMatrix.Zoom,
+                SpriteEffects.None,
+                0.0f
+            );
         }
 
         private void DrawTileBorder(Point16 tile, Color color, int width = 1, int height = 1)
